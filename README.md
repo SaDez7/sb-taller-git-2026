@@ -67,6 +67,11 @@ classDiagram
         +Enderman(String id, int saludMaxima)
     }
 
+    class Arana {
+        +Arana(String id, int saludMaxima)
+        +moverse()
+    }
+
     class Aldeano {
         -Profesion profesion
         +Aldeano(String id, int saludMaxima, Profesion profesion)
@@ -90,6 +95,7 @@ classDiagram
     Hostil <|-- Creeper
     Hostil <|-- Esqueleto
     Hostil <|-- Enderman
+    Hostil <|-- Arana
     Pacifico <|-- Aldeano
     Pacifico <|-- Cerdo
     Hostil --> AtacaJugador : agresivo
@@ -154,7 +160,7 @@ sobreescriben con la **misma firma**, `atacar(Entidad objetivo)`:
 
 - `Hostil` delega en su estrategia `AtacaJugador`, la lambda que cada
   subclase concreta inyectó en el constructor. Un `Zombie` pega 5 de daño, un
-  `Creeper` 20, un `Esqueleto` 4 y un `Enderman` 7.
+  `Creeper` 20, un `Esqueleto` 4, un `Enderman` 7 y un `Arana` 3.
 - `Pacifico` se niega a atacar e informa que es pacífico, sin hacer daño.
 - `Jugador` golpea con la mano y aplica 4 de daño.
 
@@ -165,6 +171,12 @@ compilador falle si la firma deja de coincidir con la de la superclase.
 heredan de `Hostil`. Lo que cada una hace es configurar distinto la estrategia
 `agresivo` que su padre ejecuta. Lo mismo pasa con `Aldeano` y `Cerdo`, que
 heredan la implementación de `Pacifico`.
+
+`Arana` sí sobreescribe otro método: `moverse()`, que en `Entidad` es
+concreto e imprime un mensaje genérico. `Arana` lo redefine para imprimir que
+trepa por una superficie. Sirve para recordar que sobreescribir no es
+exclusivo de los métodos abstractos: cualquier método heredado se puede
+redefinir, siempre que la firma se mantenga igual.
 
 La sobreescritura se resuelve en tiempo de ejecución y por eso el controller
 puede juntar clases distintas sin preguntar por el tipo. En
