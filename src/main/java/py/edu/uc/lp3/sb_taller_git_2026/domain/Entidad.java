@@ -13,6 +13,20 @@ public abstract class Entidad {
 		this.posicion = new Vector();
 	}
 
+	/**
+	 * Manera en que esta entidad ataca a un objetivo.
+	 *
+	 * <p>Es el comportamiento comun a toda la jerarquia pero no puede
+	 * resolverse aqui: cada rama decide a su modo como golpea. Un
+	 * {@link Hostil} delega en su estrategia {@link AtacaJugador}, un
+	 * {@link Pacifico} se niega a atacar y un {@link Jugador} pega con
+	 * la mano. Quien llama al metodo no necesita saber de que tipo
+	 * concreto se trata.</p>
+	 *
+	 * @param objetivo entidad que recibe el ataque
+	 */
+	public abstract void atacar(Entidad objetivo);
+
 	public void moverse() {
 		System.out.println(getId() + " se mueve.");
 	}

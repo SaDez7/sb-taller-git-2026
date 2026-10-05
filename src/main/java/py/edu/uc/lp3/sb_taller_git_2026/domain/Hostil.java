@@ -14,6 +14,7 @@ public abstract class Hostil extends Mob {
 		super(id, saludMaxima);
 	}
 
+	@Override
 	public void atacar(Entidad objetivo) {
 		if (agresivo == null) {
 			throw new IllegalStateException(getId() + " no tiene un ataque configurado.");

@@ -14,6 +14,11 @@ public abstract class Pacifico extends Mob {
 		super(id, saludMaxima);
 	}
 
+	@Override
+	public void atacar(Entidad objetivo) {
+		System.out.println(getId() + " no ataca a " + objetivo.getId() + ": es pacifico.");
+	}
+
 	public boolean isPacifico() {
 		return pacifico;
 	}

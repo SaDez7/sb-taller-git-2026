@@ -9,6 +9,12 @@ public class Jugador extends Entidad {
 		this.inventario = new Inventario();
 	}
 
+	@Override
+	public void atacar(Entidad objetivo) {
+		objetivo.recibirDano(4);
+		System.out.println(getId() + " golpea a " + objetivo.getId() + " con la mano.");
+	}
+
 	public void interactuar(Entidad entidad) {
 		System.out.println(getId() + " interactua con " + entidad.getId());
 	}
