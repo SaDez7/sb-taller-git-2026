@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.sb_taller_git_2026.minecraft;
+package py.edu.uc.lp3.sb_taller_git_2026.domain;
 
 import java.util.ArrayList;
 import java.util.List;

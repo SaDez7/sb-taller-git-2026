@@ -1,10 +1,10 @@
-package py.edu.uc.lp3.sb_taller_git_2026.minecraft;
+package py.edu.uc.lp3.sb_taller_git_2026.domain;
 
 /**
  * Mob agresivo: ataca al jugador.
  *
- * <p>En el diagrama hereda de {@link Mob} y agrupa a {@code zombie},
- * {@code creeper}, {@code Esqueleto} y {@code Enderman}. El atributo
+ * <p>En el diagrama hereda de {@link Mob} y agrupa a {@code Zombie},
+ * {@code Creeper}, {@code Esqueleto} y {@code Enderman}. El atributo
  * {@code agresivo} es del tipo {@link AtacaJugador}.</p>
  */
 public abstract class Hostil extends Mob {
