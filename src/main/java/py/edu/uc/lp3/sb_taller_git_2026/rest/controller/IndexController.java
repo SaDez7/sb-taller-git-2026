@@ -8,6 +8,6 @@ public class IndexController {
 
 	@GetMapping("/")
 	public String index() {
-		return "hola amigo";
+		return "Servicio Spring Boot vivo. Dominio: Minecraft.";
 	}
 }
