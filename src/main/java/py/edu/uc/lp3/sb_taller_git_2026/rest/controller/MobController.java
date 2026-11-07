@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import py.edu.uc.lp3.sb_taller_git_2026.domain.Aldeano;
+import py.edu.uc.lp3.sb_taller_git_2026.domain.ComportamientoIA;
 import py.edu.uc.lp3.sb_taller_git_2026.domain.Entidad;
 import py.edu.uc.lp3.sb_taller_git_2026.domain.Jugador;
 import py.edu.uc.lp3.sb_taller_git_2026.domain.Profesion;
@@ -44,9 +45,23 @@ public class MobController {
 		return resultado;
 	}
 
+	@GetMapping("/mobs/comportamiento")
+	public List<Comportamiento> comportamientos() {
+		List<ComportamientoIA> mobs = List.of(
+				new Zombie("zombie-lab", 20),
+				new Aldeano("aldeano-lab", 20, Profesion.GRANJERO));
+
+		return mobs.stream()
+				.map(mob -> new Comportamiento(mob.getClass().getSimpleName(), mob.describir()))
+				.toList();
+	}
+
 	/**
 	 * Como respondio cada mob al objetivo.
 	 */
 	public record Ataque(String mob, String tipo, int saludObjetivoAntes, int saludObjetivoDespues) {
+	}
+
+	public record Comportamiento(String tipo, String descripcion) {
 	}
 }
