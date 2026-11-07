@@ -1,0 +1,536 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-11-07T18:40:00.000Z",
+  "__export_source": "insomnia.desktop.app:2026.1.0",
+  "resources": [
+    {
+      "_id": "wrk_poo08",
+      "parentId": null,
+      "modified": 0,
+      "created": 0,
+      "name": "sb-taller-git-2026",
+      "description": "CRUD, simulacion de explosion, interfaz de dominio y errores de POO-08.",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_local",
+      "parentId": "wrk_poo08",
+      "modified": 0,
+      "created": 0,
+      "name": "Local",
+      "data": {
+        "base_url": "http://localhost:8080"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url"
+        ]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 0,
+      "_type": "environment"
+    },
+    {
+      "_id": "fld_crud",
+      "parentId": "wrk_poo08",
+      "modified": 0,
+      "created": 0,
+      "name": "01 - CRUD Entidades",
+      "description": "Crear, listar, consultar, actualizar y eliminar.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -4000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_sim",
+      "parentId": "wrk_poo08",
+      "modified": 0,
+      "created": 0,
+      "name": "02 - Simulacion y estado",
+      "description": "Explosion con las dos reglas y consulta del estado persistido.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -3000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_iface",
+      "parentId": "wrk_poo08",
+      "modified": 0,
+      "created": 0,
+      "name": "03 - Interfaz de dominio",
+      "description": "Endpoint que usa ComportamientoIA con familias distintas.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -2000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_err",
+      "parentId": "wrk_poo08",
+      "modified": 0,
+      "created": 0,
+      "name": "04 - Errores",
+      "description": "Un pedido por cada hija de la jerarquia de excepciones.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_root",
+      "parentId": "fld_crud",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/",
+      "name": "00 - Servicio vivo",
+      "description": "Confirma que la aplicacion responde.",
+      "method": "GET",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_create_jugador",
+      "parentId": "fld_crud",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/entidades",
+      "name": "01 - Crear jugador",
+      "description": "Crea a steve. Ejecutar primero.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"jugador\",\n  \"id\": \"steve\",\n  \"salud\": 20,\n  \"saludMaxima\": 20,\n  \"experiencia\": 7,\n  \"x\": 3,\n  \"y\": 0,\n  \"z\": 0\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_create_creeper",
+      "parentId": "fld_crud",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/entidades",
+      "name": "02 - Crear creeper",
+      "description": "Crea el creeper de la simulacion.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"creeper\",\n  \"id\": \"creeper-poo08\",\n  \"salud\": 20,\n  \"saludMaxima\": 20,\n  \"x\": 0,\n  \"y\": 0,\n  \"z\": 0\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1200,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_list",
+      "parentId": "fld_crud",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/entidades",
+      "name": "03 - Listar entidades",
+      "description": "Lista lo persistido en H2.",
+      "method": "GET",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1300,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_vivos",
+      "parentId": "fld_crud",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/entidades/vivos",
+      "name": "04 - Listar vivos",
+      "description": "Usa la consulta derivada findBySaludGreaterThan.",
+      "method": "GET",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1400,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_one",
+      "parentId": "fld_crud",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/entidades/steve",
+      "name": "05 - Ver entidad por id",
+      "description": "Consultar steve por su id persistido.",
+      "method": "GET",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1500,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_update",
+      "parentId": "fld_crud",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/entidades/steve",
+      "name": "06 - Actualizar jugador",
+      "description": "PUT que reemplaza el recurso completo.",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"jugador\",\n  \"id\": \"steve\",\n  \"salud\": 20,\n  \"saludMaxima\": 20,\n  \"experiencia\": 10,\n  \"x\": 4,\n  \"y\": 0,\n  \"z\": 0\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1600,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_create_temp",
+      "parentId": "fld_crud",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/entidades",
+      "name": "07 - Crear entidad temporal",
+      "description": "Entidad descartable para probar DELETE.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"creeper\",\n  \"id\": \"temp-delete\",\n  \"salud\": 10,\n  \"saludMaxima\": 10,\n  \"x\": 0,\n  \"y\": 0,\n  \"z\": 0\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1700,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_delete_temp",
+      "parentId": "fld_crud",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/entidades/temp-delete",
+      "name": "08 - Eliminar entidad temporal",
+      "description": "DELETE que responde 204 No Content.",
+      "method": "DELETE",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1800,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_sim",
+      "parentId": "fld_sim",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/simulacion/explosiones",
+      "name": "09 - Simular explosion",
+      "description": "Regla 1: dano con caida por distancia. Regla 2: bloques destruidos dentro del radio.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": \"creeper-poo08\",\n  \"saludMaximaCreeper\": 20,\n  \"radio\": 5,\n  \"origen\": {\n    \"x\": 0,\n    \"y\": 0,\n    \"z\": 0\n  },\n  \"jugadores\": [\n    {\n      \"id\": \"steve\",\n      \"salud\": 20,\n      \"saludMaxima\": 20,\n      \"posicion\": {\n        \"x\": 3,\n        \"y\": 0,\n        \"z\": 0\n      }\n    }\n  ],\n  \"bloques\": [\n    {\n      \"tipo\": \"tierra\",\n      \"posicion\": {\n        \"x\": 2,\n        \"y\": 0,\n        \"z\": 0\n      }\n    }\n  ]\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_after",
+      "parentId": "fld_sim",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/entidades/steve",
+      "name": "10 - Ver jugador despues de simular",
+      "description": "GET posterior: la salud ya persistida cambio.",
+      "method": "GET",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_bloques",
+      "parentId": "fld_sim",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/bloques",
+      "name": "11 - Ver bloques persistidos",
+      "description": "GET posterior: el bloque dentro del radio quedo destruido.",
+      "method": "GET",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1200,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_iface",
+      "parentId": "fld_iface",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/mobs/comportamiento",
+      "name": "12 - ComportamientoIA",
+      "description": "Endpoint de lectura que usa List<ComportamientoIA> con Zombie y Aldeano.",
+      "method": "GET",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_err_regla",
+      "parentId": "fld_err",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/entidades",
+      "name": "13 - Error ReglaDeJuego (422)",
+      "description": "POST ilegal: salud 30 con saludMaxima 20. La base no crece.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"jugador\",\n  \"id\": \"ilegal\",\n  \"salud\": 30,\n  \"saludMaxima\": 20\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_err_no_encontrada",
+      "parentId": "fld_err",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/entidades/no-existe",
+      "name": "14 - Error EntidadNoEncontrada (404)",
+      "description": "GET contra un id inexistente.",
+      "method": "GET",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_err_json",
+      "parentId": "fld_err",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/entidades",
+      "name": "15 - Error JSON invalido (400)",
+      "description": "Cuerpo que no es JSON valido.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{esto no es json}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1200,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    }
+  ]
+}
