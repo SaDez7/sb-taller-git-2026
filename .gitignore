@@ -144,3 +144,9 @@ target/
 *.war
 # When using Gradle or Maven with auto-import, you should exclude module files,
 *.zip
+
+# H2 file database
+data/*.mv.db
+data/*.trace.db
+data/*.lock.db
+!data/.gitkeep
