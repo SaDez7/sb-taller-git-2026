@@ -106,6 +106,43 @@ constructores vacios publicos y seria mucho mas facil dejar un objeto en un
 estado imposible. El DTO tambien desacopla el contrato HTTP de las columnas
 internas de JPA.
 
+## Sobrecarga y sobreescritura
+
+### Sobrecarga
+
+La sobrecarga aparece cuando dos metodos de la misma clase tienen el mismo
+nombre y distinta lista de parametros. Se resuelve en compilacion segun los
+argumentos de la llamada.
+
+- `Hostil.atacar()`, `Hostil.atacar(int distancia)` y
+  `Hostil.atacar(Entidad objetivo)`: la misma accion con tres listas de
+  argumentos distintas. La primera usa el alcance maximo, la segunda recibe una
+  distancia y la tercera ataca a otra entidad.
+- `Jugador` tiene cuatro constructores: `Jugador(String)`,
+  `Jugador(String, int)`, `Jugador(String, int, int)` y
+  `Jugador(String, int, int, Vector)`. Cada uno delega en el siguiente y deja el
+  objeto en un estado legal.
+- `Vector()` y `Vector(double, double, double)` son dos constructores con
+  distinta lista de parametros.
+
+### Sobreescritura
+
+La sobreescritura aparece cuando una clase hija redefine un metodo con la misma
+firma que el padre. Se resuelve en ejecucion segun el tipo real del objeto.
+
+- `Entidad.atacar(Entidad objetivo)` es abstracto. Lo sobrescriben `Jugador`,
+  `Hostil` y `Pacifico`, en ramas independientes de la familia. `Hostil` delega
+  el ataque en su `AtacaJugador`; `Pacifico` responde que no ataca.
+- `ComportamientoIA.actuar(Mob)` y `ComportamientoIA.describir()` son
+  implementados por `Zombie` y `Aldeano`, que pertenecen a familias distintas.
+- `Mob` y `Hostil` conservan la relacion de herencia y los constructores llaman
+  a `super` cuando corresponde.
+
+La diferencia practica es la firma y el momento de resolucion: la sobrecarga
+repite el nombre en la misma clase con parametros distintos y se elige al
+compilar; la sobreescritura repite la firma completa en una clase hija y se
+elige al ejecutar mediante polimorfismo.
+
 ## Repositorios
 
 - `EntidadRepository extends JpaRepository<Entidad, String>`: CRUD de la familia
