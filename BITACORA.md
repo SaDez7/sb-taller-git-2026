@@ -136,5 +136,5 @@ y la decisión de qué aceptar quedaron de mi lado.
   con `tipo: "regla_de_juego"`; un id inexistente devuelve `404` con
   `tipo: "entidad_no_encontrada"`; un JSON roto devuelve `400` con
   `tipo: "json_invalido"`.
-- La colección quedó en `insomnia/POO-08-insomnia.json`; el entorno `Local`
+- La colección quedó en `insomnia/sb-taller-git-2026.json`; el entorno `Local`
   apunta a `http://localhost:8080`.

@@ -449,13 +449,13 @@ En el diagrama se distinguen:
 
 ## Coleccion Insomnia
 
-El archivo versionado es `insomnia/POO-08-insomnia.json`.
+El archivo versionado es `insomnia/sb-taller-git-2026.json`.
 
 Para importarlo:
 
 1. Abrir Insomnia.
 2. Elegir `Import` y luego `From File`.
-3. Seleccionar `insomnia/POO-08-insomnia.json`.
+3. Seleccionar `insomnia/sb-taller-git-2026.json`.
 4. Verificar que el entorno incluido se llame `Local` y que `base_url` sea
    `http://localhost:8080`.
 
