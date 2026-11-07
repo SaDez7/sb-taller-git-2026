@@ -369,11 +369,12 @@ classDiagram
     }
 
     class EntidadController {
-        +GET /entidades
-        +GET /entidades/{id}
-        +POST /entidades
-        +PUT /entidades/{id}
-        +DELETE /entidades/{id}
+        +listar()
+        +listarVivos()
+        +obtener(String id)
+        +crear(EntidadRequest request)
+        +actualizar(String id, EntidadRequest request)
+        +eliminar(String id)
     }
 
     class ExplosionService {
@@ -382,7 +383,7 @@ classDiagram
     }
 
     class ExplosionController {
-        +POST /simulacion/explosiones
+        +simular(ExplosionRequest request)
     }
 
     class BloqueService {
@@ -391,11 +392,11 @@ classDiagram
     }
 
     class BloqueController {
-        +GET /bloques
+        +listar()
     }
 
     class MobController {
-        +GET /mobs/comportamiento
+        +listarComportamientos()
     }
 
     class DominioException {
