@@ -1,5 +1,8 @@
 package py.edu.uc.lp3.sb_taller_git_2026.domain;
 
+import jakarta.persistence.Embeddable;
+
+@Embeddable
 public class Vector {
 	private double x;
 	private double y;

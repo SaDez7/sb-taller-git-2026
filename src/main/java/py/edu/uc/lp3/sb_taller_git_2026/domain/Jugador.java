@@ -1,21 +1,28 @@
 package py.edu.uc.lp3.sb_taller_git_2026.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
+
+import py.edu.uc.lp3.sb_taller_git_2026.domain.exception.ReglaDeJuegoException;
+
+@Entity
+@DiscriminatorValue("jugador")
 public class Jugador extends Entidad {
 	private static final int SALUD_POR_DEFECTO = 20;
 
+	@Transient
 	private Inventario inventario;
+
+	@Column(name = "experiencia")
 	private int experiencia;
 
-	/**
-	 * Jugador recien creado: sin experiencia y en el origen del mundo.
-	 */
-	public Jugador() {
-		this("Steve");
+	protected Jugador() {
+		super();
+		this.inventario = new Inventario();
 	}
 
-	/**
-	 * Jugador con id y salud por defecto, sin experiencia.
-	 */
 	public Jugador(String id) {
 		this(id, SALUD_POR_DEFECTO, 0, new Vector());
 	}
@@ -28,17 +35,6 @@ public class Jugador extends Entidad {
 		this(id, saludMaxima, experiencia, new Vector());
 	}
 
-	/**
-	 * Constructor completo: valida y deja al jugador en estado valido.
-	 *
-	 * <p>La validacion vive aca y no en el controller: si un dato viene
-	 * mal, el dominio lo rechaza con {@link IllegalArgumentException}
-	 * en vez de que alguien de afuera lo "arregle".</p>
-	 *
-	 * @throws IllegalArgumentException si el id esta vacio, la salud
-	 *         no es positiva, la experiencia es negativa o la posicion
-	 *         es null
-	 */
 	public Jugador(String id, int saludMaxima, int experiencia, Vector posicion) {
 		super(validarId(id), validarSaludMaxima(saludMaxima));
 		this.experiencia = validarExperiencia(experiencia);
@@ -103,6 +99,9 @@ public class Jugador extends Entidad {
 	}
 
 	public void setExperiencia(int experiencia) {
+		if (experiencia < 0) {
+			throw new ReglaDeJuegoException("La experiencia no puede ser negativa.");
+		}
 		this.experiencia = experiencia;
 	}
 }
