@@ -1,5 +1,7 @@
 package py.edu.uc.lp3.sb_taller_git_2026.rest.controller;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,9 +35,10 @@ public class RestExceptionHandler {
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ErrorResponse cuerpoIlegible(HttpMessageNotReadableException error) {
-		return new ErrorResponse("json_invalido", "El cuerpo de la solicitud no es un JSON valido.");
+		return new ErrorResponse("json_invalido", "El cuerpo de la solicitud no es un JSON válido.");
 	}
 
+	@Schema(description = "Respuesta estándar de error de la API.")
 	public record ErrorResponse(String tipo, String mensaje) {
 	}
 }
