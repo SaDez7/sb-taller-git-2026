@@ -33,15 +33,16 @@ recrea el esquema vacío.
 
 ## Propiedades de H2
 
-| Propiedad | Para que esta |
+| Propiedad | Para qué sirve |
 | --- | --- |
 | `spring.application.name=sb-taller-git-2026` | Nombre de la aplicación en logs y actuator. |
 | `spring.datasource.url=jdbc:h2:file:./data/entidades` | H2 en modo archivo, dentro del proyecto. |
 | `spring.datasource.username=sa` | Usuario de desarrollo de H2. |
 | `spring.datasource.password=` | Password vacío, solo para desarrollo local. |
 | `spring.jpa.hibernate.ddl-auto=update` | Hibernate crea o actualiza las tablas al arrancar. |
-| `spring.jpa.open-in-view=false` | Evita que la sesion JPA quede abierta durante la serialización HTTP. |
+| `spring.jpa.open-in-view=false` | Evita que la sesión JPA quede abierta durante la serialización HTTP. |
 | `spring.h2.console.enabled=true` | Habilita la consola web de H2 en desarrollo. |
+| `api.restful-api.base-url=https://api.restful-api.dev` | Base de la API REST externa consultada con WebClient. |
 
 ## Modelo persistido
 
@@ -155,9 +156,10 @@ de `EntidadRepository`, y ninguno implementa a mano el acceso a datos.
 
 ## API REST
 
-| Método | URL | Uso | Exito |
+| Método | URL | Uso | Éxito |
 | --- | --- | --- | --- |
 | `GET` | `/` | Confirmar que el servicio vive. | `200` |
+| `GET` | `/jugador` | Construir un jugador con parámetros de consulta (POO-06). | `200` o `400` |
 | `GET` | `/entidades` | Listar lo persistido. | `200` |
 | `GET` | `/entidades/{id}` | Buscar una entidad. | `200` o `404` |
 | `GET` | `/entidades/vivos` | Listar entidades con salud mayor a 0. | `200` |
@@ -167,7 +169,24 @@ de `EntidadRepository`, y ninguno implementa a mano el acceso a datos.
 | `POST` | `/simulacion/explosiones` | Ejecutar sobre entidades persistidas y guardar el resultado. | `200` |
 | `POST` | `/bloques` | Crear un bloque persistido para referenciarlo en la simulación. | `201` |
 | `GET` | `/bloques` | Ver los bloques persistidos. | `200` |
-| `GET` | `/mobs/comportamiento` | Comportamientos de entidades persistidas leidas de H2, expuestos por `ComportamientoIA`. | `200` |
+| `GET` | `/mobs/ataque` | Calcular ataques con `Zombie` y `Aldeano` desde el service. | `200` |
+| `GET` | `/mobs/comportamiento` | Comportamientos de entidades persistidas leídas de H2, expuestos por `ComportamientoIA`. | `200` |
+| `GET` | `/objetos-externos` | Consultar la API REST externa con WebClient. | `200` |
+| `GET` | `/v3/api-docs` | Especificación OpenAPI generada por springdoc. | `200` |
+| `GET` | `/swagger-ui.html` | Interfaz web de Swagger. | `200` |
+
+### Consulta a la API externa
+
+`GET /objetos-externos` usa `WebClient` y la propiedad
+`api.restful-api.base-url=https://api.restful-api.dev` para consultar
+`/objects`. La respuesta es una lista de `ObjetoExternoResponse`; si la API
+externa falla, el error se propaga al cliente HTTP.
+
+### Documentación OpenAPI
+
+springdoc publica `/v3/api-docs` y `/swagger-ui.html`. Los controladores y DTOs
+llevan anotaciones `@Tag`, `@Operation` y `@Schema`, por lo que la documentación
+de la API se genera desde el código.
 
 Ejemplo de creación de un jugador:
 
@@ -289,7 +308,7 @@ distinguen aunque el cliente no mire solo el código HTTP:
 ```json
 {
   "tipo": "regla_de_juego",
-  "mensaje": "La salud no puede superar la salud maxima."
+  "mensaje": "La salud no puede superar la salud máxima."
 }
 ```
 
@@ -447,7 +466,7 @@ classDiagram
     EntidadService ..> EntidadRepository : usa
     EntidadController ..> EntidadService : usa
     ExplosionService ..> Creeper : regla 1
-    ExplosionService ..> Jugador : aplica dano
+    ExplosionService ..> Jugador : aplica daño
     ExplosionService ..> BloqueService : regla 2
     ExplosionService ..> EntidadRepository : lee y persiste
     ExplosionService ..> BloqueRepository : lee y persiste
