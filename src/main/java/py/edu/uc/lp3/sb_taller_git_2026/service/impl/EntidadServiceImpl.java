@@ -173,7 +173,7 @@ public class EntidadServiceImpl implements EntidadService {
 	private static int validarSaludMaximaJugador(int saludMaxima) {
 		if (saludMaxima <= 0) {
 			throw new IllegalArgumentException(
-					"La salud máxima debe ser mayor a 0, se recibio: " + saludMaxima);
+					"La salud máxima debe ser mayor a 0, se recibió: " + saludMaxima);
 		}
 		return saludMaxima;
 	}
@@ -181,7 +181,7 @@ public class EntidadServiceImpl implements EntidadService {
 	private static int validarExperienciaJugador(int experiencia) {
 		if (experiencia < 0) {
 			throw new IllegalArgumentException(
-					"La experiencia no puede ser negativa, se recibio: " + experiencia);
+					"La experiencia no puede ser negativa, se recibió: " + experiencia);
 		}
 		return experiencia;
 	}
