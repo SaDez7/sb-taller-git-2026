@@ -27,7 +27,7 @@
 
 **Ejercicio POO-06**
 - Pedí que se revisara el template `lp3-template-tp` para decidir qué carpetas imitar. Me quedé con `domain/` y `rest/controller/`, y descarté `repository/` y `service/` porque son de un ejemplo con base de datos que no aplica acá.
-- Pedí un prompt con restricciones para OpenCode
+- Pedí un prompt con restricciones para OpenCode.
 - Ante la pregunta de OpenCode sobre qué hacer con `IllegalArgumentException`, elegí mapearla a 400 en el controller y dejar la validación completa en la clase.
 - Pedí los prompts para generar el diagrama Mermaid del README, el apartado de sobrecarga y sobreescritura, y esta bitácora.
 
@@ -118,9 +118,10 @@ y la decisión de qué aceptar quedaron de mi lado.
 - Pedí continuar con la refactorización para que las clases reales del dominio
   fueran las entidades JPA, con `Entidad` como base y `Jugador`/`Creeper` como
   subtipos persistidos.
-- Pedí mover las dos reglas de la explosión al dominio, persistir la simulación
-  y agregar la jerarquía `DominioException` con dos hijas y handlers distintos.
-- Pedí el endpoint de `ComportamientoIA` usando `Zombie` y `Aldeano`, la
+- Pedí mover las dos reglas de la explosión a la capa service, persistir la
+  simulación y agregar la jerarquía `DominioException` con dos hijas y handlers
+  distintos.
+- Pedí el endpoint de `ComportamientoIA` leyendo entidades persistidas de H2, la
   colección Insomnia y la actualización del README.
 
 **Qué verifiqué en esta etapa:**
@@ -130,8 +131,8 @@ y la decisión de qué aceptar quedaron de mi lado.
 - Con `curl` probé crear un jugador y un creeper, listar, consultar por id,
   actualizar, borrar, listar vivos y consultar el endpoint de la interfaz.
 - La simulación devolvió daño 8 para un jugador a distancia 3 con radio 5,
-  persistió la salud resultante y marcó como destruido el bloque dentro del
-  radio. Un `GET` posterior mostró esos cambios.
+  persistió la salud resultante de 15 a 7 y marcó como destruido el bloque dentro
+  del radio. Un `GET` posterior mostró esos cambios y un id ausente devolvió `404`.
 - Los errores se distinguen: `POST` con salud mayor a la máxima devuelve `422`
   con `tipo: "regla_de_juego"`; un id inexistente devuelve `404` con
   `tipo: "entidad_no_encontrada"`; un JSON roto devuelve `400` con

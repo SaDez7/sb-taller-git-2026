@@ -2,8 +2,8 @@
 
 Servicio Spring Boot (Java 21, Maven) para el dominio de Minecraft. Implementa
 el CRUD REST de entidades, la persistencia en H2 con Spring Data JPA, una
-simulacion de explosiones con dos reglas de negocio, una interfaz de dominio y
-una jerarquia de excepciones con un handler HTTP por tipo.
+simulación de explosiones con dos reglas de negocio, una capa service que valida
+y lanza excepciones, y un handler HTTP por tipo de error.
 
 ## Arranque
 
@@ -19,47 +19,47 @@ pruebas:
 ./mvnw test
 ```
 
-La consola de H2 esta disponible en `http://localhost:8080/h2-console` con:
+La consola de H2 está disponible en `http://localhost:8080/h2-console` con:
 
 | Dato | Valor |
 | --- | --- |
 | JDBC URL | `jdbc:h2:file:./data/entidades` |
 | Usuario | `sa` |
-| Password | vacio |
+| Password | vacío |
 
-El archivo de la base se crea en `data/entidades.mv.db` y esta ignorado por
-Git. Si se detiene la aplicacion y se borra ese archivo, la proxima ejecucion
-recrea el esquema vacio.
+El archivo de la base se crea en `data/entidades.mv.db` y está ignorado por
+Git. Si se detiene la aplicación y se borra ese archivo, la próxima ejecución
+recrea el esquema vacío.
 
 ## Propiedades de H2
 
 | Propiedad | Para que esta |
 | --- | --- |
-| `spring.application.name=sb-taller-git-2026` | Nombre de la aplicacion en logs y actuator. |
+| `spring.application.name=sb-taller-git-2026` | Nombre de la aplicación en logs y actuator. |
 | `spring.datasource.url=jdbc:h2:file:./data/entidades` | H2 en modo archivo, dentro del proyecto. |
 | `spring.datasource.username=sa` | Usuario de desarrollo de H2. |
-| `spring.datasource.password=` | Password vacio, solo para desarrollo local. |
+| `spring.datasource.password=` | Password vacío, solo para desarrollo local. |
 | `spring.jpa.hibernate.ddl-auto=update` | Hibernate crea o actualiza las tablas al arrancar. |
-| `spring.jpa.open-in-view=false` | Evita que la sesion JPA quede abierta durante la serializacion HTTP. |
+| `spring.jpa.open-in-view=false` | Evita que la sesion JPA quede abierta durante la serialización HTTP. |
 | `spring.h2.console.enabled=true` | Habilita la consola web de H2 en desarrollo. |
 
 ## Modelo persistido
 
 Las tres clases concretas que se persisten son:
 
-- `Jugador`: entidad que recibe dano en la simulacion.
-- `Creeper`: hostil que origina la explosion.
+- `Jugador`: entidad que recibe daño en la simulación.
+- `Creeper`: hostil que origina la explosión.
 - `Bloque`: objeto del mundo que puede quedar destruido.
 
 `Entidad` es la clase base abstracta de la familia y `Mob`/`Hostil` son clases
 intermedias. `Jugador` y `Creeper` son dos especializaciones independientes de
-`Entidad`; `Creeper` llega por `Mob -> Hostil` y `Jugador` hereda directo. El
-metodo abstracto `atacar(Entidad)` de POO-06 sigue existiendo y se sobreescribe
-en `Jugador`, `Hostil` y `Pacifico`.
+`Entidad`; `Creeper` llega por `Mob -> Hostil` y `Jugador` hereda directo. La
+jerarquía se conserva como modelo de estado: las decisiones de ataque,
+comportamiento y reglas de juego viven en la capa service.
 
 ### Herencia y discriminador
 
-Se eligio `InheritanceType.SINGLE_TABLE`:
+Se eligió `InheritanceType.SINGLE_TABLE`:
 
 - `Entidad` es una `@Entity` abstracta.
 - `Mob` y `Hostil` son `@MappedSuperclass`.
@@ -67,7 +67,7 @@ Se eligio `InheritanceType.SINGLE_TABLE`:
 - La tabla `entidades` tiene una columna `tipo` que distingue `jugador` de
   `creeper`.
 
-La eleccion evita joins y deja una sola tabla para consultar la familia. Como
+La elección evita joins y deja una sola tabla para consultar la familia. Como
 contrapartida, las columnas propias de una hija quedan nulas en las filas de la
 otra; por eso `experiencia` es opcional a nivel de tabla y solo se usa en
 `Jugador`.
@@ -79,69 +79,67 @@ coordenadas `x`, `y`, `z`.
 
 JPA necesita un constructor sin argumentos. En todas las entidades ese
 constructor es `protected`: el marco puede instanciarlas, pero el resto del
-codigo no puede crear objetos incompletos. Los constructores publicos de
-negocio validan y dejan el objeto en estado legal.
+código no puede crear objetos incompletos. Los constructores públicos solo
+inicializan estado; los service validan antes de llamarlos.
 
 ### Identidad
 
-La clave es `id` (`String`). El JSON de creacion puede traerlo o omitirlo:
+La clave es `id` (`String`). El JSON de creación puede traerlo o omitirlo:
 
 - Si lo trae, se usa como clave natural; es util para probar con ids legibles
   como `steve` o `creeper-poo08`.
 - Si lo omite, el servicio genera un `UUID` antes de guardar.
 
-En los dos casos la URL usa el mismo `id` que quedo persistido. El id no es un
-indice de una lista del controller.
+En los dos casos la URL usa el mismo `id` que quedó persistido. El id no es un
+índice de una lista del controller.
 
-### Discriminacion del subtipo en JSON
+### Discriminación del subtipo en JSON
 
 El request y el response usan DTOs (`EntidadRequest` y `EntidadResponse`) con
-un campo explicito `tipo` (`jugador` o `creeper`). No se usaron anotaciones
-polimorficas de Jackson sobre las entidades.
+un campo explícito `tipo` (`jugador` o `creeper`). No se usaron anotaciones
+polimórficas de Jackson sobre las entidades.
 
-Esa eleccion mantiene a Jackson fuera de la construccion del dominio: el
-service valida los datos y llama al constructor de negocio correspondiente. Si
-Jackson instanciara las entidades directamente, necesitaria setters o
-constructores vacios publicos y seria mucho mas facil dejar un objeto en un
-estado imposible. El DTO tambien desacopla el contrato HTTP de las columnas
+Esa elección mantiene a Jackson fuera de la construcción del dominio: el
+service valida los datos y llama al constructor correspondiente. Si
+Jackson instanciara las entidades directamente, necesitaría setters o
+constructores vacios públicos y sería mucho más fácil dejar un objeto en un
+estado imposible. El DTO también desacopla el contrato HTTP de las columnas
 internas de JPA.
 
 ## Sobrecarga y sobreescritura
 
 ### Sobrecarga
 
-La sobrecarga aparece cuando dos metodos de la misma clase tienen el mismo
-nombre y distinta lista de parametros. Se resuelve en compilacion segun los
+La sobrecarga aparece cuando dos métodos de la misma clase tienen el mismo
+nombre y distinta lista de parámetros. Se resuelve en compilación según los
 argumentos de la llamada.
 
-- `Hostil.atacar()`, `Hostil.atacar(int distancia)` y
-  `Hostil.atacar(Entidad objetivo)`: la misma accion con tres listas de
-  argumentos distintas. La primera usa el alcance maximo, la segunda recibe una
-  distancia y la tercera ataca a otra entidad.
+- `Bloque(String)` y `Bloque(String, Vector)`: la misma construcción con y sin
+  posición explicita; el service siempre pasa una posición validada.
 - `Jugador` tiene cuatro constructores: `Jugador(String)`,
   `Jugador(String, int)`, `Jugador(String, int, int)` y
-  `Jugador(String, int, int, Vector)`. Cada uno delega en el siguiente y deja el
-  objeto en un estado legal.
+  `Jugador(String, int, int, Vector)`. Los tres primeros delegan directamente en
+  el completo y dejan el objeto en un estado legal.
 - `Vector()` y `Vector(double, double, double)` son dos constructores con
-  distinta lista de parametros.
+  distinta lista de parámetros.
 
 ### Sobreescritura
 
-La sobreescritura aparece cuando una clase hija redefine un metodo con la misma
-firma que el padre. Se resuelve en ejecucion segun el tipo real del objeto.
+La sobreescritura aparece cuando una clase redefine un método con la misma
+firma que el padre. Después de esta corrección el dominio no tiene métodos de
+negocio sobreescritos: las clases hijas solo heredan estado. La unica
+sobreescritura presente es `Vector.toString()`, que cambia la representación
+textual heredada de `Object`.
 
-- `Entidad.atacar(Entidad objetivo)` es abstracto. Lo sobrescriben `Jugador`,
-  `Hostil` y `Pacifico`, en ramas independientes de la familia. `Hostil` delega
-  el ataque en su `AtacaJugador`; `Pacifico` responde que no ataca.
-- `ComportamientoIA.actuar(Mob)` y `ComportamientoIA.describir()` son
-  implementados por `Zombie` y `Aldeano`, que pertenecen a familias distintas.
-- `Mob` y `Hostil` conservan la relacion de herencia y los constructores llaman
-  a `super` cuando corresponde.
+`Mob` y `Hostil` conservan la relación de herencia y los constructores llaman a
+`super` cuando corresponde. Las decisiones que antes estaban en métodos
+sobreescritos ahora están en `MobServiceImpl` y `ExplosionServiceImpl`, donde se
+resuelven según el tipo concreto con `instanceof`.
 
-La diferencia practica es la firma y el momento de resolucion: la sobrecarga
-repite el nombre en la misma clase con parametros distintos y se elige al
-compilar; la sobreescritura repite la firma completa en una clase hija y se
-elige al ejecutar mediante polimorfismo.
+La diferencia práctica sigue siendo la firma y el momento de resolución: la
+sobrecarga repite el nombre en la misma clase con parámetros distintos y se
+elige al compilar; la sobreescritura repite la firma completa y se elige al
+ejecutar mediante polimorfismo.
 
 ## Repositorios
 
@@ -149,15 +147,15 @@ elige al ejecutar mediante polimorfismo.
   y la consulta derivada `findBySaludGreaterThan(int)`, usada por
   `GET /entidades/vivos`.
 - `BloqueRepository extends JpaRepository<Bloque, Long>`: persistencia de los
-  bloques de la simulacion.
+  bloques de la simulación.
 
 Los mensajes de consulta se declaran en la interfaz; Spring Data genera la
-implementacion. El controller depende de `EntidadService`, el service depende
+implementación. El controller depende de `EntidadService`, el service depende
 de `EntidadRepository`, y ninguno implementa a mano el acceso a datos.
 
 ## API REST
 
-| Metodo | URL | Uso | Exito |
+| Método | URL | Uso | Exito |
 | --- | --- | --- | --- |
 | `GET` | `/` | Confirmar que el servicio vive. | `200` |
 | `GET` | `/entidades` | Listar lo persistido. | `200` |
@@ -166,11 +164,12 @@ de `EntidadRepository`, y ninguno implementa a mano el acceso a datos.
 | `POST` | `/entidades` | Crear jugador o creeper. | `201` |
 | `PUT` | `/entidades/{id}` | Reemplazar el recurso completo. | `200` |
 | `DELETE` | `/entidades/{id}` | Borrar una entidad. | `204` |
-| `POST` | `/simulacion/explosiones` | Ejecutar y persistir la explosion. | `200` |
+| `POST` | `/simulacion/explosiones` | Ejecutar sobre entidades persistidas y guardar el resultado. | `200` |
+| `POST` | `/bloques` | Crear un bloque persistido para referenciarlo en la simulación. | `201` |
 | `GET` | `/bloques` | Ver los bloques persistidos. | `200` |
-| `GET` | `/mobs/comportamiento` | Endpoint que usa `ComportamientoIA`. | `200` |
+| `GET` | `/mobs/comportamiento` | Comportamientos de entidades persistidas leidas de H2, expuestos por `ComportamientoIA`. | `200` |
 
-Ejemplo de creacion de un jugador:
+Ejemplo de creación de un jugador:
 
 ```json
 {
@@ -185,7 +184,7 @@ Ejemplo de creacion de un jugador:
 }
 ```
 
-Ejemplo de creacion de un creeper:
+Ejemplo de creación de un creeper:
 
 ```json
 {
@@ -201,83 +200,84 @@ Ejemplo de creacion de un creeper:
 
 ## Las dos reglas de negocio
 
-Las dos reglas viven en clases del dominio y las dispara el controller de
-simulacion a traves de `ExplosionService`. Participan `Creeper`, `Jugador` y
-`Bloque`.
+Las dos reglas viven en la capa service y las dispara el controller de
+simulación a través de `ExplosionService`. Las clases del dominio solo guardan
+estado; no validan, no lanzan excepciones y no calculan reglas de juego.
 
-1. **El dano de la explosion decae con la distancia.** En
-   `Creeper.danioDeExplosion(distancia, radio)`, un objetivo dentro del radio
-   recibe hasta 20 puntos de dano; la formula es
-   `max(1, round(20 * (1 - distancia / radio)))`. Fuera del radio el dano es 0.
+1. **El daño de la explosión decae con la distancia.** En
+   `ExplosionServiceImpl.danioDeExplosion(distancia, radio)`, un objetivo dentro
+   del radio recibe hasta 20 puntos de daño; la fórmula es
+   `max(1, round(20 * (1 - distancia / radio)))`. Fuera del radio el daño es 0.
 2. **Todo bloque alcanzado por el radio queda destruido.** En
-   `Bloque.destruidoPorExplosion(distancia, radio)`, si la distancia es menor o
-   igual al radio, el bloque se marca como `destruido`.
+   `BloqueServiceImpl.aplicarExplosion(bloque, distancia, radio)`, si la
+   distancia es menor o igual al radio, el bloque se marca como `destruido`.
 
-La simulacion persiste el creeper, el jugador con su salud actualizada y los
-bloques con su estado. Un `GET /entidades/{id}` o `GET /bloques` posterior
-muestra el estado ya guardado.
+La simulación carga el creeper, los jugadores y los bloques desde H2 usando
+solo los ids del cuerpo; no crea entidades nuevas ni reescribe su estado con
+datos del pedido. Si falta algún id, responde `404`. Después de aplicar las
+reglas guarda el jugador con su salud actualizada y el bloque con su estado.
 
-Ejemplo de simulacion:
+Ejemplo de simulación:
 
 ```json
 {
   "creeperId": "creeper-poo08",
-  "saludMaximaCreeper": 20,
   "radio": 5,
-  "origen": { "x": 0, "y": 0, "z": 0 },
   "jugadores": [
-    {
-      "id": "steve",
-      "salud": 20,
-      "saludMaxima": 20,
-      "posicion": { "x": 3, "y": 0, "z": 0 }
-    }
+    { "id": "steve" }
   ],
   "bloques": [
-    {
-      "tipo": "tierra",
-      "posicion": { "x": 2, "y": 0, "z": 0 }
-    }
+    { "id": 1 }
   ]
 }
 ```
 
-En este caso `steve` esta a distancia 3 de un radio 5, asi que recibe 8 de
-dano y queda con 12 de salud. El bloque a distancia 2 queda destruido.
+El creeper y `steve` deben existir por `POST`/`PUT /entidades`, y el bloque `1`
+por `POST /bloques`. La posición y la salud salen de H2: el `origen`, la salud
+máxima del creeper y la salud/posición de cada jugador ya no van en el pedido.
+En este caso `steve` está a distancia 3 de un radio 5, recibe 8 de daño y pasa
+de 15 a 7; el bloque a distancia 2 queda destruido. Repetir el pedido parte de 7
+y acumula el daño en vez de curarlo. Un `GET /entidades/steve` o `GET /bloques`
+posterior muestra el estado guardado.
 
-## Interfaz de dominio
+`Bloque` no expone `setDestruido`. El único camino para marcar un bloque es
+`BloqueServiceImpl.aplicarExplosion`, que valida radio y distancia y devuelve una
+nueva instancia con el estado calculado.
 
-`ComportamientoIA` declara:
+## Comportamiento en la capa service
 
-```java
-void actuar(Mob mob);
-String describir();
-```
+`MobService` expone `simularAtaques()` y `listarComportamientos()`. En
+`listarComportamientos()` el service ya no arma mobs temporales: lee las filas
+de H2 con `EntidadRepository.findAll()`, las ordena por id y devuelve una lista
+de `ComportamientoIA`. Cada fila persistida se adapta a un
+`ComportamientoResponse`, que implementa esa interfaz; las descripciones se
+calculan en `MobServiceImpl` según el tipo concreto (`Jugador`, `Creeper`).
+`MobController` consume la interfaz y construye el DTO de respuesta.
 
-La implementan `Zombie` (familia `Hostil`) y `Aldeano` (familia `Pacifico`).
-El endpoint `GET /mobs/comportamiento` arma una `List<ComportamientoIA>` y llama
-`describir()` sobre el tipo de la interfaz, sin preguntar por la clase concreta.
-Eso permite hablar con objetos de familias distintas a traves del mismo
-protocolo.
+Las clases del dominio siguen sin métodos de comportamiento: `Zombie` y
+`Aldeano` solo conservan el estado de las familias `Hostil` y `Pacifico`, usadas
+por `simularAtaques()`. La lógica que antes estaba en `ComportamientoIA` y
+`AtacaJugador` vive en el service, y la interfaz `ComportamientoIA` volvió como
+contrato de salida del endpoint, no como responsabilidad de la entidad.
 
 ## Excepciones y handlers
 
-La jerarquia es:
+La jerarquía es:
 
 - `DominioException`: clase base abstracta, no comprobada, extiende
   `RuntimeException`.
 - `EntidadNoEncontradaException`: hija para un id que no existe. Responde
   `404`.
-- `ReglaDeJuegoException`: hija para una regla de dominio incumplida. Responde
+- `ReglaDeJuegoException`: hija para una regla de negocio incumplida. Responde
   `422`.
 
-La jerarquia es no comprobada porque un id inexistente o una regla de juego
+La jerarquía es no comprobada porque un id inexistente o una regla de juego
 rota no se resuelven localmente: son errores de la solicitud que el handler
-HTTP traduce. Si fueran comprobadas, cada capa tendria que declarar `throws` y
-el controller quedaria acoplado a los detalles del dominio.
+HTTP traduce. Si fueran comprobadas, cada capa tendría que declarar `throws` y
+el controller quedaría acoplado a los detalles del dominio.
 
 El JSON de error siempre lleva `tipo` y `mensaje`, de modo que las hermanas se
-distinguen aunque el cliente no mire solo el codigo HTTP:
+distinguen aunque el cliente no mire solo el código HTTP:
 
 ```json
 {
@@ -295,9 +295,9 @@ distinguen aunque el cliente no mire solo el codigo HTTP:
 
 `HttpMessageNotReadableException` responde `400` con `tipo: "json_invalido"`.
 `IllegalArgumentException` responde `400` con `tipo: "argumento_invalido"`.
-Se eligio `422` para las reglas de juego porque el JSON esta bien formado pero
-el contenido viola una regla del dominio; el `400` queda para cuerpos
-malformados o argumentos invalidos.
+Se eligió `422` para las reglas de juego porque el JSON está bien formado pero
+el contenido viola una regla de negocio validada en el service; el `400` queda
+para cuerpos malformados o argumentos inválidos.
 
 ## Diagrama de clases
 
@@ -311,53 +311,32 @@ classDiagram
         -Vector posicion
         -int salud
         -int saludMaxima
-        +atacar(Entidad objetivo)*
-        +moverse()
-        +recibirDano(int cantidad)
-        +curar(int cantidad)
-        +estaVivo() boolean
     }
 
     class Mob {
         <<abstract>>
-        -ComportamientoIA ia
-        +generarBotin()
-        +deambular()
     }
 
     class Hostil {
         <<abstract>>
-        -AtacaJugador agresivo
-        +atacar()
-        +atacar(int distancia)
-        +atacar(Entidad objetivo)
     }
 
     class Pacifico {
         <<abstract>>
-        +atacar(Entidad objetivo)
+        -boolean pacifico
     }
 
     class Jugador {
         -Inventario inventario
         -int experiencia
-        +atacar(Entidad objetivo)
-        +construir(Bloque bloque)
     }
 
-    class Creeper {
-        +danioDeExplosion(double distancia, double radio) int
-    }
+    class Creeper
 
-    class Zombie {
-        +actuar(Mob mob)
-        +describir() String
-    }
+    class Zombie
 
     class Aldeano {
         -Profesion profesion
-        +actuar(Mob mob)
-        +describir() String
     }
 
     class Bloque {
@@ -365,7 +344,6 @@ classDiagram
         -String tipo
         -Vector posicion
         -boolean destruido
-        +destruidoPorExplosion(double distancia, double radio) boolean
     }
 
     class Vector {
@@ -374,11 +352,7 @@ classDiagram
         -double z
     }
 
-    class ComportamientoIA {
-        <<interface>>
-        +actuar(Mob mob)
-        +describir() String
-    }
+    class Inventario
 
     class EntidadRepository {
         <<interface>>
@@ -403,6 +377,7 @@ classDiagram
         +crear(EntidadRequest request)
         +actualizar(String id, EntidadRequest request)
         +eliminar(String id)
+        +construirJugador(String id, int saludMaxima, int experiencia, double x, double y, double z)
     }
 
     class EntidadController {
@@ -419,6 +394,15 @@ classDiagram
         +simular(ExplosionRequest request)
     }
 
+    class MobService {
+        <<interface>>
+        +simularAtaques()
+        +listarComportamientos()
+    }
+
+    class AtaqueResponse
+    class ComportamientoResponse
+
     class ExplosionController {
         +simular(ExplosionRequest request)
     }
@@ -426,6 +410,9 @@ classDiagram
     class BloqueService {
         <<interface>>
         +listar()
+        +crear(String tipo, Vector posicion)
+        +actualizar(Bloque bloque, String tipo, Vector posicion)
+        +aplicarExplosion(Bloque bloque, double distancia, double radio) Bloque
     }
 
     class BloqueController {
@@ -433,6 +420,7 @@ classDiagram
     }
 
     class MobController {
+        +simularAtaques()
         +listarComportamientos()
     }
 
@@ -451,23 +439,30 @@ classDiagram
     Hostil <|-- Creeper
     Hostil <|-- Zombie
     Pacifico <|-- Aldeano
-    ComportamientoIA <|.. Zombie
-    ComportamientoIA <|.. Aldeano
     Entidad *-- Vector : posicion
     Bloque *-- Vector : posicion
+    Jugador *-- Inventario : inventario
     EntidadRepository ..> Entidad : persiste
     BloqueRepository ..> Bloque : persiste
     EntidadService ..> EntidadRepository : usa
     EntidadController ..> EntidadService : usa
     ExplosionService ..> Creeper : regla 1
-    ExplosionService ..> Jugador : persiste dano
-    ExplosionService ..> Bloque : regla 2
-    ExplosionService ..> EntidadRepository : persiste
-    ExplosionService ..> BloqueRepository : persiste
+    ExplosionService ..> Jugador : aplica dano
+    ExplosionService ..> BloqueService : regla 2
+    ExplosionService ..> EntidadRepository : lee y persiste
+    ExplosionService ..> BloqueRepository : lee y persiste
     ExplosionController ..> ExplosionService : usa
+    BloqueService ..> Bloque : valida y devuelve estado
     BloqueService ..> BloqueRepository : usa
     BloqueController ..> BloqueService : usa
-    MobController ..> ComportamientoIA : usa
+    BloqueController ..> BloqueRequest : recibe
+    MobService ..> Zombie : calcula
+    MobService ..> Aldeano : calcula
+    MobService ..> EntidadRepository : lee filas
+    MobService ..> ComportamientoIA : devuelve
+    ComportamientoIA <|.. ComportamientoResponse
+    MobService ..> AtaqueResponse : devuelve
+    MobController ..> MobService : usa
     DominioException <|-- EntidadNoEncontradaException
     DominioException <|-- ReglaDeJuegoException
     RestExceptionHandler ..> EntidadNoEncontradaException : 404
@@ -476,16 +471,16 @@ classDiagram
 
 En el diagrama se distinguen:
 
-- **Herencia:** lineas con `<|--` entre `Entidad`, `Mob`, `Hostil`, `Pacifico`,
+- **Herencia:** líneas con `<|--` entre `Entidad`, `Mob`, `Hostil`, `Pacifico`,
   `Jugador`, `Creeper`, `Zombie` y `Aldeano`.
-- **Implementacion de interfaz:** lineas con `<|..` entre
-  `ComportamientoIA` y `Zombie`/`Aldeano`.
+- **Estado del dominio:** `Entidad`, `Mob`, `Hostil`, `Pacifico`, `Jugador`,
+  `Creeper`, `Zombie`, `Aldeano` y `Bloque` solo guardan datos.
 - **Uso del repositorio:** dependencias con `..>` desde el service/controller
   hacia `EntidadRepository` y `BloqueRepository`.
-- **Jerarquia de excepciones:** `DominioException` como base y sus dos hijas,
-  mas las dependencias del handler.
+- **Jerarquía de excepciones:** `DominioException` como base y sus dos hijas,
+  más las dependencias del handler.
 
-## Coleccion Insomnia
+## Colección Insomnia
 
 El archivo versionado es `insomnia/sb-taller-git-2026.json`.
 
@@ -502,63 +497,65 @@ Orden recomendado:
 1. `00 - Servicio vivo`.
 2. `01 - Crear jugador` y `02 - Crear creeper`.
 3. `03` a `08` para recorrer listar, consultar, actualizar y borrar.
-4. `09 - Simular explosion`.
-5. `10 - Ver jugador despues de simular` y `11 - Ver bloques persistidos`.
-6. `12 - ComportamientoIA`.
-7. `13 - Error ReglaDeJuego (422)`, `14 - Error EntidadNoEncontrada (404)` y
-   `15 - Error JSON invalido (400)`.
+4. `09 - Crear bloque`.
+5. `10 - Simular explosión`.
+6. `11 - Ver jugador después de simular` y `12 - Ver bloques persistidos`.
+7. `13 - Comportamiento`.
+8. `14 - Error ReglaDeJuego (422)`, `15 - Error EntidadNoEncontrada (404)` y
+   `16 - Error JSON inválido (400)`.
 
-Si se vuelve a ejecutar la coleccion sobre la misma base, el `POST` de `steve`
-puede fallar por id duplicado. Para reiniciar: detener la aplicacion, borrar
-`data/entidades.mv.db` y arrancar de nuevo. Tambien se pueden borrar
+Si se vuelve a ejecutar la colección sobre la misma base, el `POST` de `steve`
+puede fallar por id duplicado. Para reiniciar: detener la aplicación, borrar
+`data/entidades.mv.db` y arrancar de nuevo. También se pueden borrar
 `steve`/`creeper-poo08` con `DELETE` antes de repetir.
 
 La prueba de que un `POST` ilegal no ensucia la base es el request
-`13 - Error ReglaDeJuego (422)`: responde error y el request `03 - Listar
+`14 - Error ReglaDeJuego (422)`: responde error y el request `03 - Listar
 entidades` sigue mostrando las mismas filas, sin `ilegal`.
 
-## Preguntas de "Que hay que pensar"
+## Preguntas de «Qué hay que pensar»
 
 **Recurso y verbo.** El sustantivo es `entidades`; las URL nombran el recurso y
-el verbo HTTP dice la operacion: `GET` lee, `POST` crea, `PUT` actualiza y
-`DELETE` borra. La simulacion es un recurso propio, `explosiones`, bajo
+el verbo HTTP dice la operación: `GET` lee, `POST` crea, `PUT` actualiza y
+`DELETE` borra. La simulación es un recurso propio, `explosiones`, bajo
 `/simulacion`.
 
 **Identidad.** La clave es `id`. El JSON puede traerlo o no; si no viene, el
-servicio genera un UUID. La URL usa el id persistido, no una posicion de lista.
+servicio genera un UUID. La URL usa el id persistido, no una posición de lista.
 
-**Herencia y tablas.** Se uso una sola tabla con discriminador `tipo` para la
+**Herencia y tablas.** Se usó una sola tabla con discriminador `tipo` para la
 familia de `Entidad`, y una tabla aparte para `Bloque`. El subtipo se
 discrimina en el JSON con el campo `tipo` del DTO.
 
 **Interfaz y repositorio.** El controller depende de `EntidadService`, que
 depende de `EntidadRepository`, una interfaz. Spring Data genera la
-implementacion. Igual que en el protocolo de POO-07, el controller trabaja
-contra el contrato y no contra una implementacion concreta: puede cambiar el
-acceso a datos sin tocar la capa HTTP.
+implementación. El controller trabaja contra el contrato y no contra una
+implementación concreta: puede cambiar el acceso a datos sin tocar la capa HTTP.
 
-**Protocolo del dominio.** La interfaz es `ComportamientoIA`. La usa
-`GET /mobs/comportamiento`. Si, puede hablar con instancias de familias
-distintas: `Zombie` viene de `Hostil` y `Aldeano` de `Pacifico`.
+**Comportamiento en el service.** `GET /mobs/ataque` pasa por `MobService`, que
+usa el estado de `Zombie` (rama `Hostil`) y `Aldeano` (rama `Pacifico`) para
+calcular el daño. `GET /mobs/comportamiento` lee entidades persistidas de H2,
+las expone como `ComportamientoIA` desde el service y el controller las adapta
+a `ComportamientoResponse`; las entidades del dominio no deciden nada.
 
-**Ocultamiento.** Las reglas numericas viven en `Creeper` y `Bloque`, no en el
-controller. JPA usa acceso por campo, y las actualizaciones de estado pasan por
-`Entidad.actualizarEstado`, que valida salud, salud maxima y posicion; los
-setters que quedan tambien rechazan valores invalidos. El request `13` de
-Insomnia muestra que un `POST` ilegal responde `422` y la base queda igual
-porque la validacion ocurre antes de guardar y la transaccion hace rollback
-ante cualquier error.
+**Ocultamiento y validación.** Las reglas numéricas viven en
+`ExplosionServiceImpl` y `BloqueServiceImpl`, no en el controller ni en el
+dominio. JPA usa acceso por campo y los service validan salud, salud máxima,
+posición, tipo, radio y distancia antes de mutar el estado con los setters. El
+request `14` de Insomnia muestra que un `POST` ilegal responde `422` y la base
+queda igual porque la validación ocurre antes de guardar y la transacción hace
+rollback ante cualquier error.
 
-**PUT y PATCH.** Se implemento `PUT`, que reemplaza el recurso completo. Los
+**PUT y PATCH.** Se implementó `PUT`, que reemplaza el recurso completo. Los
 campos `salud` y `saludMaxima` son obligatorios; `experiencia` vale 0 si se
-omite y las coordenadas valen 0 si se omiten. No se implemento `PATCH`.
+omite y las coordenadas valen 0 si se omiten. No se implementó `PATCH`.
 
-**DELETE.** Borra fisicamente la fila. Antes de borrar se busca la entidad; si
-no existe, el dominio lanza `EntidadNoEncontradaException` y el handler
+**DELETE.** Borra físicamente la fila. Antes de borrar se busca la entidad; si
+no existe, `EntidadServiceImpl` lanza `EntidadNoEncontradaException` y el handler
 responde `404`. El verbo HTTP no ejecuta una regla de juego adicional.
 
-**Dos reglas.** La primera es el dano decreciente de la explosion; la segunda
-es la destruccion de bloques dentro del radio. El recurso HTTP es
+**Dos reglas.** La primera es el daño decreciente de la explosión; la segunda
+es la destrucción de bloques dentro del radio. El recurso HTTP es
 `POST /simulacion/explosiones`. Un `GET /entidades/{id}` y un `GET /bloques`
 posteriores muestran el estado ya persistido.
 
@@ -566,8 +563,8 @@ posteriores muestran el estado ya persistido.
 `ReglaDeJuegoException` nombra una regla incumplida. Son tipos distintos: la
 primera responde `404` y la segunda `422`. El JSON de error lleva `tipo` y
 `mensaje`. Se usan excepciones no comprobadas porque el handler centraliza la
-traduccion a HTTP y las capas no quedan obligadas a declarar `throws`.
+traducción a HTTP y las capas no quedan obligadas a declarar `throws`.
 
-## Bitacora
+## Bitácora
 
-El detalle de asistentes, modelos y prompts esta en `BITACORA.md`.
+El detalle de asistentes, modelos y prompts está en `BITACORA.md`.
