@@ -1,5 +1,8 @@
 package py.edu.uc.lp3.sb_taller_git_2026.rest.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +14,7 @@ import py.edu.uc.lp3.sb_taller_git_2026.service.ExplosionService;
 import py.edu.uc.lp3.sb_taller_git_2026.service.dto.ExplosionRequest;
 import py.edu.uc.lp3.sb_taller_git_2026.service.dto.ExplosionResponse;
 
+@Tag(name = "Simulación", description = "Simulaciones de mecánicas del dominio.")
 @RestController
 @RequestMapping("/simulacion/explosiones")
 public class ExplosionController {
@@ -21,6 +25,7 @@ public class ExplosionController {
 		this.service = service;
 	}
 
+	@Operation(summary = "Simular explosión", description = "Calcula el efecto de una explosión sobre las entidades persistentes.")
 	@PostMapping
 	@ResponseStatus(HttpStatus.OK)
 	public ExplosionResponse simular(@RequestBody ExplosionRequest request) {

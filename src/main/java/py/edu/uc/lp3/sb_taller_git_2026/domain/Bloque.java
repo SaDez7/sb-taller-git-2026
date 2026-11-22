@@ -8,8 +8,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-import py.edu.uc.lp3.sb_taller_git_2026.domain.exception.ReglaDeJuegoException;
-
 @Entity
 @Table(name = "bloques")
 public class Bloque {
@@ -33,27 +31,18 @@ public class Bloque {
 	}
 
 	public Bloque(String tipo) {
-		this(tipo, new Vector());
+		this(null, tipo, new Vector(), false);
 	}
 
 	public Bloque(String tipo, Vector posicion) {
-		this.tipo = tipo;
-		this.posicion = posicion == null ? new Vector() : posicion;
-		this.destruido = false;
+		this(null, tipo, posicion, false);
 	}
 
-	public boolean destruidoPorExplosion(double distancia, double radio) {
-		if (radio <= 0) {
-			throw new ReglaDeJuegoException("El radio de la explosion debe ser mayor a 0.");
-		}
-		if (distancia < 0) {
-			throw new ReglaDeJuegoException("La distancia a la explosion no puede ser negativa.");
-		}
-		boolean alcanzado = distancia <= radio;
-		if (alcanzado) {
-			this.destruido = true;
-		}
-		return alcanzado;
+	public Bloque(Long id, String tipo, Vector posicion, boolean destruido) {
+		this.id = id;
+		this.tipo = tipo;
+		this.posicion = posicion;
+		this.destruido = destruido;
 	}
 
 	public Long getId() {
@@ -65,9 +54,6 @@ public class Bloque {
 	}
 
 	public void setTipo(String tipo) {
-		if (tipo == null || tipo.isBlank()) {
-			throw new ReglaDeJuegoException("El tipo de bloque no puede estar vacio.");
-		}
 		this.tipo = tipo;
 	}
 
@@ -76,17 +62,10 @@ public class Bloque {
 	}
 
 	public void setPosicion(Vector posicion) {
-		if (posicion == null) {
-			throw new ReglaDeJuegoException("La posicion del bloque no puede ser null.");
-		}
 		this.posicion = posicion;
 	}
 
 	public boolean isDestruido() {
 		return destruido;
-	}
-
-	public void setDestruido(boolean destruido) {
-		this.destruido = destruido;
 	}
 }

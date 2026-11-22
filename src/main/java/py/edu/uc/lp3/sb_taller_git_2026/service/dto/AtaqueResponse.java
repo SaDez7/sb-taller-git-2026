@@ -1,0 +1,11 @@
+package py.edu.uc.lp3.sb_taller_git_2026.service.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Resultado de un ataque simulado.")
+public record AtaqueResponse(
+		String mob,
+		String tipo,
+		int saludObjetivoAntes,
+		int saludObjetivoDespues) {
+}
