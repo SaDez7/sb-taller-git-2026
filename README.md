@@ -243,11 +243,11 @@ a aplicar la rúbrica de 24.
 
 ### Mapa del grupo (round robin)
 
-| Rol | Alumno | Servicio | URL base | OpenAPI | Reglas que publica, en una frase |
-| --- | --- | --- | --- | --- | --- |
-| A1 | Santiago Baez (`SaDez7`) | `sb-taller-git-2026` (este repo) | `http://25.29.140.0:8080` | `http://25.29.140.0:8080/v3/api-docs` | El daño de una explosión decae con la distancia hasta 20 puntos y todo bloque dentro del radio queda destruido. |
-| A2 | fadul | API Minecraft de fadul | `http://25.30.124.10:8080` | `http://25.30.124.10:8080/v3/api-docs` | Una TNT detona una sola vez y aplica hasta 8 puntos de daño a entidades dentro de 4 bloques. |
-| A3 | mateo | API Minecraft de mateo | `http://25.28.15.25:8080` | `http://25.28.15.25:8080/v3/api-docs` | Un creeper vivo explota una sola vez y daña hasta 10 puntos a objetivos a 3 bloques o menos. |
+| Rol | Alumno | Servicio | URL base | OpenAPI | Commit de la solución | Reglas que publica, en una frase |
+| --- | --- | --- | --- | --- | --- | --- |
+| A1 | Santiago Baez (`SaDez7`) | `sb-taller-git-2026` (este repo) | `http://25.29.140.0:8080` | `http://25.29.140.0:8080/v3/api-docs` | [`0b244776d8d8c08d7457d59c40f5c09e63c3530a`](https://github.com/SaDez7/sb-taller-git-2026/commit/0b244776d8d8c08d7457d59c40f5c09e63c3530a) | El daño de una explosión decae con la distancia hasta 20 puntos y todo bloque dentro del radio queda destruido. |
+| A2 | Lucas Fadul (`LucasFadul`) | `lfadul-tp-lp3-2026` | `http://25.30.124.10:8080` | `http://25.30.124.10:8080/v3/api-docs` | [`a5819ea5dea43054d700ee87be5d502f21336748`](https://github.com/LucasFadul/lfadul-tp-lp3-2026/commit/a5819ea5dea43054d700ee87be5d502f21336748) | Una TNT detona una sola vez y aplica hasta 8 puntos de daño a entidades dentro de 4 bloques. |
+| A3 | Mateo Ríos (`MatRF04`) | `mr-taller-git-2026` | `http://25.28.15.25:8080` | `http://25.28.15.25:8080/v3/api-docs` | [`a80b0ea2341d810028544f04371a45caf752634f`](https://github.com/MatRF04/mr-taller-git-2026/commit/a80b0ea2341d810028544f04371a45caf752634f) | Un creeper vivo explota una sola vez y daña hasta 10 puntos a objetivos a 3 bloques o menos. |
 
 A1 es el servicio propio y el único que orquesta el escenario; A2 y A3 son los
 dos consumos ajenos. Las reglas se tomaron leyendo los documentos OpenAPI de los
@@ -262,21 +262,30 @@ cd sb-taller-git-2026
 ./mvnw spring-boot:run
 ```
 
-Para arrancar A2 y A3, cada dueño ejecuta este mismo comando en su propia máquina
-y desde su repositorio:
+Para arrancar A2 y A3 desde los commits entregados por sus dueños, en carpetas
+separadas:
 
 ```bash
+# A2: Lucas Fadul
+git clone https://github.com/LucasFadul/lfadul-tp-lp3-2026.git
+cd lfadul-tp-lp3-2026
+git checkout a5819ea5dea43054d700ee87be5d502f21336748
+./mvnw spring-boot:run
+
+# A3: Mateo Ríos
+git clone https://github.com/MatRF04/mr-taller-git-2026.git
+cd mr-taller-git-2026
+git checkout a80b0ea2341d810028544f04371a45caf752634f
 ./mvnw spring-boot:run
 ```
 
-No se clona su código dentro de este repo: solo se consultan sus OpenAPI con las
-URLs de la tabla. Si se dispone de la URL de cada repositorio, se puede clonar con
-`git clone <url-del-repo-de-fadul>` y `git clone <url-del-repo-de-mateo>` antes del
-comando. Después se verifica `GET /v3/api-docs` en la IP de cada uno. Los tres
-quedan expuestos en la IP Hamachi de cada máquina. Si un compañero no responde,
-A1 devuelve `502 companero_no_disponible` con el nombre de la API en el campo
-`api`; en la prueba real A3 devolvió `Conexión rehusada` una vez, se reintentó con
-otra TNT y la respuesta quedó registrada abajo.
+Estos clones son solo para reproducir la prueba: este repo no incorpora su código,
+solo consulta sus OpenAPI con las URLs de la tabla. Después se verifica
+`GET /v3/api-docs` en la IP de cada uno. Los tres quedan expuestos en la IP Hamachi
+de cada máquina. Si un compañero no responde, A1 devuelve `502 companero_no_disponible`
+con el nombre de la API en el campo `api`; en la prueba real A3 devolvió
+`Conexión rehusada` una vez, se reintentó con otra TNT y la respuesta quedó
+registrada abajo.
 
 ### Escenario propio: explosión cruzada
 
