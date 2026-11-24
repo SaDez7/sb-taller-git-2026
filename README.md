@@ -91,7 +91,7 @@ inicializan estado; los service validan antes de llamarlos.
 
 La clave es `id` (`String`). El JSON de creación puede traerlo o omitirlo:
 
-- Si lo trae, se usa como clave natural; es util para probar con ids legibles
+- Si lo trae, se usa como clave natural; es útil para probar con ids legibles
   como `steve` o `creeper-poo08`.
 - Si lo omite, el servicio genera un `UUID` antes de guardar.
 
@@ -107,11 +107,11 @@ polimórficas de Jackson sobre las entidades.
 Esa elección mantiene a Jackson fuera de la construcción del dominio: el
 service valida los datos y llama al constructor correspondiente. Si
 Jackson instanciara las entidades directamente, necesitaría setters o
-constructores vacios públicos y sería mucho más fácil dejar un objeto en un
+constructores vacíos públicos y sería mucho más fácil dejar un objeto en un
 estado imposible. El DTO también desacopla el contrato HTTP de las columnas
 internas de JPA.
 
-## Sobrecarga y sobreescritura
+## Sobrecarga y sobrescritura
 
 ### Sobrecarga
 
@@ -120,7 +120,7 @@ nombre y distinta lista de parámetros. Se resuelve en compilación según los
 argumentos de la llamada.
 
 - `Bloque(String)` y `Bloque(String, Vector)`: la misma construcción con y sin
-  posición explicita; el service siempre pasa una posición validada.
+  posición explícita; el service siempre pasa una posición validada.
 - `Jugador` tiene cuatro constructores: `Jugador(String)`,
   `Jugador(String, int)`, `Jugador(String, int, int)` y
   `Jugador(String, int, int, Vector)`. Los tres primeros delegan directamente en
@@ -130,20 +130,20 @@ argumentos de la llamada.
 
 ### Sobreescritura
 
-La sobreescritura aparece cuando una clase redefine un método con la misma
+La sobrescritura aparece cuando una clase redefine un método con la misma
 firma que el padre. Después de esta corrección el dominio no tiene métodos de
-negocio sobreescritos: las clases hijas solo heredan estado. La unica
-sobreescritura presente es `Vector.toString()`, que cambia la representación
+negocio sobrescritos: las clases hijas solo heredan estado. La única
+sobrescritura presente es `Vector.toString()`, que cambia la representación
 textual heredada de `Object`.
 
 `Mob` y `Hostil` conservan la relación de herencia y los constructores llaman a
 `super` cuando corresponde. Las decisiones que antes estaban en métodos
-sobreescritos ahora están en `MobServiceImpl` y `ExplosionServiceImpl`, donde se
+sobrescritos ahora están en `MobServiceImpl` y `ExplosionServiceImpl`, donde se
 resuelven según el tipo concreto con `instanceof`.
 
 La diferencia práctica sigue siendo la firma y el momento de resolución: la
 sobrecarga repite el nombre en la misma clase con parámetros distintos y se
-elige al compilar; la sobreescritura repite la firma completa y se elige al
+elige al compilar; la sobrescritura repite la firma completa y se elige al
 ejecutar mediante polimorfismo.
 
 ## Repositorios
@@ -164,11 +164,11 @@ de `EntidadRepository`, y ninguno implementa a mano el acceso a datos.
 
 | Método | URL | Uso | Éxito |
 | --- | --- | --- | --- |
-| `GET` | `/` | Confirmar que el servicio vive. | `200` |
+| `GET` | `/` | Confirmar que el servicio está disponible. | `200` |
 | `GET` | `/jugador` | Construir un jugador con parámetros de consulta (POO-06). | `200` o `400` |
 | `GET` | `/entidades` | Listar lo persistido. | `200` |
 | `GET` | `/entidades/{id}` | Buscar una entidad. | `200` o `404` |
-| `GET` | `/entidades/vivos` | Listar entidades con salud mayor a 0. | `200` |
+| `GET` | `/entidades/vivos` | Listar entidades con salud mayor que 0. | `200` |
 | `POST` | `/entidades` | Crear jugador o creeper. | `201` |
 | `PUT` | `/entidades/{id}` | Reemplazar el recurso completo. | `200` |
 | `DELETE` | `/entidades/{id}` | Borrar una entidad. | `204` |
@@ -228,14 +228,16 @@ Ejemplo de creación de un creeper:
 
 ## POO-09 — APIs cruzadas
 
-**Corrección de POO-08.** Las observaciones ya estaban cerradas antes de POO-09;
-este repo conserva los commits que las cerraron. No se vuelve a aplicar la
-rúbrica de 24.
+**Situación de POO-08.** POO-08 quedó con puntaje completo (24/24). Sus cuatro
+observaciones ya estaban cerradas antes de POO-09; este repo conserva los
+commits que las cerraron. No hay un documento separado de corrección: cada
+observación queda identificada en la tabla siguiente con su commit. No se vuelve
+a aplicar la rúbrica de 24.
 
 | Observación cerrada | Cómo se cerró | Commit |
 | --- | --- | --- |
 | Las reglas estaban en el dominio | Las dos reglas se centralizaron en la capa service: daño decreciente en `ExplosionServiceImpl.danioDeExplosion` y destrucción de bloques en `BloqueServiceImpl.aplicarExplosion`. Las clases del dominio quedaron como estado. | `e233fe0` |
-| La simulación armaba entidades desde el pedido | Ahora lee creeper, jugadores y bloques desde H2 por id, valida el tipo concreto, guarda la salud resultante y el estado `destruido`, y rechaza ids repetidos o ausentes. | `e233fe0` |
+| La simulación armaba entidades desde el cuerpo de la solicitud | Ahora lee creeper, jugadores y bloques desde H2 por id, valida el tipo concreto, guarda la salud resultante y el estado `destruido`, y rechaza ids repetidos o ausentes. | `e233fe0` |
 | `ComportamientoIA` estaba como responsabilidad del dominio | La interfaz pasó al service como contrato de salida; `MobServiceImpl.listarComportamientos()` lee H2, ordena por id y calcula la descripción según el tipo. | `e233fe0` |
 | Mensajes con tildes y redacción incompleta | Se corrigieron los textos de validación y se completó la documentación de endpoints. | `35374b3`, `bde0b74`, `1853e52` |
 
@@ -260,12 +262,21 @@ cd sb-taller-git-2026
 ./mvnw spring-boot:run
 ```
 
-A2 y A3 se arrancan de la misma forma desde los commits de sus dueños; las URLs
-base y OpenAPI de cada uno están en la tabla. Los tres quedan expuestos en la IP
-Hamachi de cada máquina. Si un compañero no responde, A1 devuelve
-`502 companero_no_disponible` con el nombre de la API en el campo `api`; en la
-prueba real A3 devolvió `Conexión rehusada` una vez, se reintentó con otra TNT y
-la respuesta quedó registrada abajo.
+Para arrancar A2 y A3, cada dueño ejecuta este mismo comando en su propia máquina
+y desde su repositorio:
+
+```bash
+./mvnw spring-boot:run
+```
+
+No se clona su código dentro de este repo: solo se consultan sus OpenAPI con las
+URLs de la tabla. Si se dispone de la URL de cada repositorio, se puede clonar con
+`git clone <url-del-repo-de-fadul>` y `git clone <url-del-repo-de-mateo>` antes del
+comando. Después se verifica `GET /v3/api-docs` en la IP de cada uno. Los tres
+quedan expuestos en la IP Hamachi de cada máquina. Si un compañero no responde,
+A1 devuelve `502 companero_no_disponible` con el nombre de la API en el campo
+`api`; en la prueba real A3 devolvió `Conexión rehusada` una vez, se reintentó con
+otra TNT y la respuesta quedó registrada abajo.
 
 ### Escenario propio: explosión cruzada
 
@@ -298,7 +309,7 @@ sequenceDiagram
     A1-->>Cliente: 201 jugada persistida
 ```
 
-Pedido feliz:
+Solicitud de ejemplo (caso feliz):
 
 ```json
 {
@@ -374,7 +385,7 @@ Rechazo real de A3 con TNT `t4` y creeper `4` ya explotado (`422`):
 ```
 
 Después de ambos rechazos, `GET /escenarios/explosion-cruzada` sigue mostrando
-sólo la jugada `id: 1`: la base de A1 no creció. `CompaneroWebClientImpl` usa dos
+solo la jugada `id: 1`: la base de A1 no creció. `CompaneroWebClientImpl` usa dos
 `WebClient` configurados con `api.a2.base-url` y `api.a3.base-url`, con timeout
 de 10 segundos; los DTOs de pedido y respuesta se armaron desde los OpenAPI
 ajenos.
@@ -391,7 +402,7 @@ estado; no validan, no lanzan excepciones y no calculan reglas de juego.
    `max(1, round(20 * (1 - distancia / radio)))`. Fuera del radio el daño es 0.
 2. **Todo bloque alcanzado por el radio queda destruido.** En
    `BloqueServiceImpl.aplicarExplosion(bloque, distancia, radio)`, si la
-   distancia es menor o igual al radio, el bloque se marca como `destruido`.
+   distancia es menor o igual que el radio, el bloque se marca como `destruido`.
 
 La simulación carga el creeper, los jugadores y los bloques desde H2 usando
 solo los ids del cuerpo; no crea entidades nuevas ni reescribe su estado con
@@ -415,7 +426,7 @@ Ejemplo de simulación:
 
 El creeper y `steve` deben existir por `POST`/`PUT /entidades`, y el bloque `1`
 por `POST /bloques`. La posición y la salud salen de H2: el `origen`, la salud
-máxima del creeper y la salud/posición de cada jugador ya no van en el pedido.
+máxima del creeper y la salud/posición de cada jugador ya no van en el cuerpo de la solicitud.
 En este caso `steve` está a distancia 3 de un radio 5, recibe 8 de daño y pasa
 de 15 a 7; el bloque a distancia 2 queda destruido. Repetir el pedido parte de 7
 y acumula el daño en vez de curarlo. Un `GET /entidades/steve` o `GET /bloques`
@@ -458,7 +469,7 @@ HTTP traduce. Si fueran comprobadas, cada capa tendría que declarar `throws` y
 el controller quedaría acoplado a los detalles del dominio.
 
 El JSON de error siempre lleva `tipo` y `mensaje`, de modo que las hermanas se
-distinguen aunque el cliente no mire solo el código HTTP:
+distinguen por esos campos, no solo por el código HTTP:
 
 ```json
 {
@@ -679,7 +690,7 @@ Orden recomendado:
 
 1. `00 - Servicio vivo`.
 2. `01 - Crear jugador` y `02 - Crear creeper`.
-3. `03` a `08` para recorrer listar, consultar, actualizar y borrar.
+3. `03` a `08` para listar, consultar, actualizar y borrar.
 4. `09 - Crear bloque`.
 5. `10 - Simular explosión`.
 6. `11 - Ver jugador después de simular` y `12 - Ver bloques persistidos`.
@@ -687,7 +698,7 @@ Orden recomendado:
 8. `14 - Error ReglaDeJuego (422)`, `15 - Error EntidadNoEncontrada (404)` y
    `16 - Error JSON inválido (400)`.
 9. `17 - OpenAPI propia`, `18 - OpenAPI A2` y `19 - OpenAPI A3` para confirmar
-   que los tres documentos están vivos.
+   que los tres documentos están disponibles.
 10. `20 - Crear TNT A2 (feliz)` y `21 - Escenario feliz`.
 11. `22 - Ver escenarios guardados`: debe aparecer la jugada recién persistida.
 12. `23 - Rechazo A2`, creado con la misma TNT ya detonada.
@@ -706,8 +717,8 @@ puede fallar por id duplicado. Para reiniciar: detener la aplicación, borrar
 `data/entidades.mv.db` y arrancar de nuevo. También se pueden borrar
 `steve`/`creeper-poo08` con `DELETE` antes de repetir.
 
-La prueba de que un `POST` ilegal no ensucia la base es el request
-`14 - Error ReglaDeJuego (422)`: responde error y el request `03 - Listar
+La prueba de que un `POST` ilegal no ensucia la base es la solicitud
+`14 - Error ReglaDeJuego (422)`: responde error y la solicitud `03 - Listar
 entidades` sigue mostrando las mismas filas, sin `ilegal`.
 
 ## Preguntas de «Qué hay que pensar»

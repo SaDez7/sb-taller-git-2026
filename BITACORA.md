@@ -29,7 +29,7 @@
 - Pedí que se revisara el template `lp3-template-tp` para decidir qué carpetas imitar. Me quedé con `domain/` y `rest/controller/`, y descarté `repository/` y `service/` porque son de un ejemplo con base de datos que no aplica acá.
 - Pedí un prompt con restricciones para OpenCode.
 - Ante la pregunta de OpenCode sobre qué hacer con `IllegalArgumentException`, elegí mapearla a 400 en el controller y dejar la validación completa en la clase.
-- Pedí los prompts para generar el diagrama Mermaid del README, el apartado de sobrecarga y sobreescritura, y esta bitácora.
+- Pedí los prompts para generar el diagrama Mermaid del README, el apartado de sobrecarga y sobrescritura, y esta bitácora.
 
 **Prompt enviado a OpenCode para el ejercicio POO-06 (texto literal):**
 
@@ -49,7 +49,7 @@ Necesito reorganizar y completar el proyecto según este enunciado:
 2. En la clase base de mi jerarquía, agregar UN método abstracto que
    describa un comportamiento común con implementación distinta por
    tipo (ej: cómo ataca o se mueve cada mob). Dos clases hijas
-   independientes lo sobreescriben, misma firma, cada una a su modo.
+   independientes lo sobrescriben, misma firma, cada una a su modo.
    Estado privado, sin getters que expongan todo.
 
 3. Agregar constructores simples y sobrecargados en al menos una
@@ -145,9 +145,9 @@ y la decisión de qué aceptar quedaron de mi lado.
 ## POO-09 — APIs cruzadas
 
 **Alcance:** publicar el OpenAPI de A1, consumir las APIs reales de A2 (fadul) y
-A3 (mateo) usando sólo sus documentos, exponer un escenario propio que combine
+A3 (mateo) usando solo sus documentos, exponer un escenario propio que combine
 las dos validaciones, persistir la jugada aceptada en H2, atribuir los rechazos y
-dejar la colección Insomnia con el feliz y un rechazo por compañero. Las
+dejar la colección Insomnia con el caso feliz y un rechazo de A2 y otro de A3. Las
 correcciones de POO-08 ya estaban cerradas en los commits `e233fe0`, `35374b3`,
 `bde0b74` y `1853e52`; el README las lista una por una.
 
@@ -179,8 +179,11 @@ compañeros, y revisé las respuestas antes de aceptar los cambios.
 - Rechazo de A3: crear `t4` y usar el creeper `4` ya explotado devolvió `422` con
   `api: "A3"`, `statusCompanero: 409` y detalle `El creeper ya explotó`.
 - Después de ambos rechazos, `GET /escenarios/explosion-cruzada` sigue mostrando
-  sólo la jugada `id: 1`: la base de A1 quedó igual.
+  solo la jugada `id: 1`: la base de A1 quedó igual.
 - En el primer intento A3 devolvió `502 companero_no_disponible` por
   `Conexión rehusada`; `curl` al mismo OpenAPI funcionaba. Reintenté con otra
   TNT y el escenario pasó, dejando documentado el comportamiento ante un
   compañero caído.
+
+**Enlace de la solución:**
+https://github.com/SaDez7/sb-taller-git-2026/commit/0b244776d8d8c08d7457d59c40f5c09e63c3530a
