@@ -150,3 +150,6 @@ data/*.mv.db
 data/*.trace.db
 data/*.lock.db
 !data/.gitkeep
+
+# Entregable de la tarea (se sube por Classroom, no al repo)
+POO-09-entregable.md
