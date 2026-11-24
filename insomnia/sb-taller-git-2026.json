@@ -10,7 +10,7 @@
       "modified": 0,
       "created": 0,
       "name": "sb-taller-git-2026",
-      "description": "CRUD, simulación de explosión, interfaz del service y errores de POO-08.",
+      "description": "CRUD, simulación de explosión, interfaz del service, errores de POO-08 y escenario cruzado de POO-09.",
       "scope": "collection",
       "_type": "workspace"
     },
@@ -22,11 +22,27 @@
       "name": "Local",
       "data": {
         "base_url": "http://localhost:8080",
+        "a2_base_url": "http://25.30.124.10:8080",
+        "a3_base_url": "http://25.28.15.25:8080",
+        "tnt_feliz_id": "t5",
+        "tnt_rechazo_a3_id": "t6",
+        "objetivo_a2_id": "jugador1",
+        "creeper_a3_id": 5,
+        "objetivo_a3_id": 3,
+        "distancia_a3": 2,
         "bloque_id": 1
       },
       "dataPropertyOrder": {
         "&": [
           "base_url",
+          "a2_base_url",
+          "a3_base_url",
+          "tnt_feliz_id",
+          "tnt_rechazo_a3_id",
+          "objetivo_a2_id",
+          "creeper_a3_id",
+          "objetivo_a3_id",
+          "distancia_a3",
           "bloque_id"
         ]
       },
@@ -81,6 +97,18 @@
       "environment": {},
       "environmentPropertyOrder": null,
       "metaSortKey": -1000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_cruzado",
+      "parentId": "wrk_poo08",
+      "modified": 0,
+      "created": 0,
+      "name": "05 - POO-09 APIs cruzadas",
+      "description": "OpenAPI de los tres servicios, escenario feliz y rechazos de A2 y A3.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 0,
       "_type": "request_group"
     },
     {
@@ -556,6 +584,291 @@
       ],
       "authentication": {},
       "metaSortKey": -1200,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_openapi_self",
+      "parentId": "fld_cruzado",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/v3/api-docs",
+      "name": "17 - OpenAPI propia",
+      "description": "Documento OpenAPI de A1; debe incluir /escenarios/explosion-cruzada.",
+      "method": "GET",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -2000,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_openapi_a2",
+      "parentId": "fld_cruzado",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.a2_base_url }}/v3/api-docs",
+      "name": "18 - OpenAPI A2",
+      "description": "Documento leído de fadul para armar el cliente de explosiones.",
+      "method": "GET",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -2100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_openapi_a3",
+      "parentId": "fld_cruzado",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.a3_base_url }}/v3/api-docs",
+      "name": "19 - OpenAPI A3",
+      "description": "Documento leído de mateo para armar el cliente de creepers.",
+      "method": "GET",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -2200,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_crear_tnt_happy",
+      "parentId": "fld_cruzado",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.a2_base_url }}/api/tnts",
+      "name": "20 - Crear TNT A2 (feliz)",
+      "description": "Crea la TNT indicada por tnt_feliz_id en A2 antes del escenario feliz. Respuesta 201.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"{{ _.tnt_feliz_id }}\",\n  \"posicion\": { \"x\": 0, \"y\": 0, \"z\": 0 }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -2300,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_escenario_happy",
+      "parentId": "fld_cruzado",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/escenarios/explosion-cruzada",
+      "name": "21 - Escenario feliz",
+      "description": "A2 y A3 aceptan: 201 con la jugada persistida. En la ejecución de ejemplo dio danoA2 8 y danoA3 10.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"jugadorId\": \"steve\",\n  \"tntId\": \"{{ _.tnt_feliz_id }}\",\n  \"objetivoA2Id\": \"{{ _.objetivo_a2_id }}\",\n  \"creeperA3Id\": {{ _.creeper_a3_id }},\n  \"objetivoA3Id\": {{ _.objetivo_a3_id }},\n  \"distanciaA3\": {{ _.distancia_a3 }}\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -2400,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_escenario_list",
+      "parentId": "fld_cruzado",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/escenarios/explosion-cruzada",
+      "name": "22 - Ver escenarios guardados",
+      "description": "GET posterior: debe aparecer la jugada recién persistida en H2.",
+      "method": "GET",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -2500,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_escenario_rechazo_a2",
+      "parentId": "fld_cruzado",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/escenarios/explosion-cruzada",
+      "name": "23 - Rechazo A2",
+      "description": "Repite tnt_feliz_id: 422 validacion_companero, api A2, statusCompanero 409, detalle La TNT ya fue detonada. No inserta fila.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"jugadorId\": \"steve\",\n  \"tntId\": \"{{ _.tnt_feliz_id }}\",\n  \"objetivoA2Id\": \"{{ _.objetivo_a2_id }}\",\n  \"creeperA3Id\": {{ _.creeper_a3_id }},\n  \"objetivoA3Id\": {{ _.objetivo_a3_id }},\n  \"distanciaA3\": {{ _.distancia_a3 }}\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -2600,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_crear_tnt_a3",
+      "parentId": "fld_cruzado",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.a2_base_url }}/api/tnts",
+      "name": "24 - Crear TNT A2 (rechazo A3)",
+      "description": "Crea la TNT indicada por tnt_rechazo_a3_id en A2 para que A2 acepte y A3 rechace por creeper ya explotado.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"{{ _.tnt_rechazo_a3_id }}\",\n  \"posicion\": { \"x\": 0, \"y\": 0, \"z\": 0 }\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -2700,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_escenario_rechazo_a3",
+      "parentId": "fld_cruzado",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/escenarios/explosion-cruzada",
+      "name": "25 - Rechazo A3",
+      "description": "La TNT de tnt_rechazo_a3_id es nueva pero el creeper ya explotó: 422 validacion_companero, api A3, detalle El creeper ya explotó. No inserta fila.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"jugadorId\": \"steve\",\n  \"tntId\": \"{{ _.tnt_rechazo_a3_id }}\",\n  \"objetivoA2Id\": \"{{ _.objetivo_a2_id }}\",\n  \"creeperA3Id\": {{ _.creeper_a3_id }},\n  \"objetivoA3Id\": {{ _.objetivo_a3_id }},\n  \"distanciaA3\": {{ _.distancia_a3 }}\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -2800,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_escenario_list_after",
+      "parentId": "fld_cruzado",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/escenarios/explosion-cruzada",
+      "name": "26 - Ver escenarios tras rechazos",
+      "description": "GET final: la lista queda igual que en el paso 22; los rechazos no insertaron filas.",
+      "method": "GET",
+      "body": {
+        "mimeType": "application/json",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -2900,
       "isPrivate": false,
       "settingStoreCookies": true,
       "settingSendCookies": true,

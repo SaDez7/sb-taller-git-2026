@@ -3,7 +3,9 @@
 Servicio Spring Boot (Java 21, Maven) para el dominio de Minecraft. Implementa
 el CRUD REST de entidades, la persistencia en H2 con Spring Data JPA, una
 simulación de explosiones con dos reglas de negocio, una capa service que valida
-y lanza excepciones, y un handler HTTP por tipo de error.
+y lanza excepciones, y un handler HTTP por tipo de error. En POO-09 agrega un
+escenario cruzado que consulta las APIs de A2 y A3 y persiste la jugada aceptada
+en H2.
 
 ## Arranque
 
@@ -43,6 +45,8 @@ recrea el esquema vacío.
 | `spring.jpa.open-in-view=false` | Evita que la sesión JPA quede abierta durante la serialización HTTP. |
 | `spring.h2.console.enabled=true` | Habilita la consola web de H2 en desarrollo. |
 | `api.restful-api.base-url=https://api.restful-api.dev` | Base de la API REST externa consultada con WebClient. |
+| `api.a2.base-url=http://25.30.124.10:8080` | Base de la API de A2 (fadul), configurada para el cliente WebClient. |
+| `api.a3.base-url=http://25.28.15.25:8080` | Base de la API de A3 (mateo), configurada para el cliente WebClient. |
 
 ## Modelo persistido
 
@@ -149,6 +153,8 @@ ejecutar mediante polimorfismo.
   `GET /entidades/vivos`.
 - `BloqueRepository extends JpaRepository<Bloque, Long>`: persistencia de los
   bloques de la simulación.
+- `EscenarioCruzadoRepository extends JpaRepository<EscenarioCruzado, Long>`:
+  jugadas cruzadas aceptadas por A2 y A3 en POO-09.
 
 Los mensajes de consulta se declaran en la interfaz; Spring Data genera la
 implementación. El controller depende de `EntidadService`, el service depende
@@ -172,6 +178,9 @@ de `EntidadRepository`, y ninguno implementa a mano el acceso a datos.
 | `GET` | `/mobs/ataque` | Calcular ataques con `Zombie` y `Aldeano` desde el service. | `200` |
 | `GET` | `/mobs/comportamiento` | Comportamientos de entidades persistidas leídas de H2, expuestos por `ComportamientoIA`. | `200` |
 | `GET` | `/objetos-externos` | Consultar la API REST externa con WebClient. | `200` |
+| `POST` | `/escenarios/explosion-cruzada` | Validar TNT en A2 y creeper en A3; guarda la jugada si ambos aceptan. | `201`, `422` o `502` |
+| `GET` | `/escenarios/explosion-cruzada` | Listar jugadas cruzadas persistidas. | `200` |
+| `GET` | `/escenarios/explosion-cruzada/{id}` | Leer una jugada cruzada persistida. | `200` o `404` |
 | `GET` | `/v3/api-docs` | Especificación OpenAPI generada por springdoc. | `200` |
 | `GET` | `/swagger-ui.html` | Interfaz web de Swagger. | `200` |
 
@@ -216,6 +225,159 @@ Ejemplo de creación de un creeper:
   "z": 0
 }
 ```
+
+## POO-09 — APIs cruzadas
+
+**Corrección de POO-08.** Las observaciones ya estaban cerradas antes de POO-09;
+este repo conserva los commits que las cerraron. No se vuelve a aplicar la
+rúbrica de 24.
+
+| Observación cerrada | Cómo se cerró | Commit |
+| --- | --- | --- |
+| Las reglas estaban en el dominio | Las dos reglas se centralizaron en la capa service: daño decreciente en `ExplosionServiceImpl.danioDeExplosion` y destrucción de bloques en `BloqueServiceImpl.aplicarExplosion`. Las clases del dominio quedaron como estado. | `e233fe0` |
+| La simulación armaba entidades desde el pedido | Ahora lee creeper, jugadores y bloques desde H2 por id, valida el tipo concreto, guarda la salud resultante y el estado `destruido`, y rechaza ids repetidos o ausentes. | `e233fe0` |
+| `ComportamientoIA` estaba como responsabilidad del dominio | La interfaz pasó al service como contrato de salida; `MobServiceImpl.listarComportamientos()` lee H2, ordena por id y calcula la descripción según el tipo. | `e233fe0` |
+| Mensajes con tildes y redacción incompleta | Se corrigieron los textos de validación y se completó la documentación de endpoints. | `35374b3`, `bde0b74`, `1853e52` |
+
+### Mapa del grupo (round robin)
+
+| Rol | Alumno | Servicio | URL base | OpenAPI | Reglas que publica, en una frase |
+| --- | --- | --- | --- | --- | --- |
+| A1 | Santiago Baez (`SaDez7`) | `sb-taller-git-2026` (este repo) | `http://25.29.140.0:8080` | `http://25.29.140.0:8080/v3/api-docs` | El daño de una explosión decae con la distancia hasta 20 puntos y todo bloque dentro del radio queda destruido. |
+| A2 | fadul | API Minecraft de fadul | `http://25.30.124.10:8080` | `http://25.30.124.10:8080/v3/api-docs` | Una TNT detona una sola vez y aplica hasta 8 puntos de daño a entidades dentro de 4 bloques. |
+| A3 | mateo | API Minecraft de mateo | `http://25.28.15.25:8080` | `http://25.28.15.25:8080/v3/api-docs` | Un creeper vivo explota una sola vez y daña hasta 10 puntos a objetivos a 3 bloques o menos. |
+
+A1 es el servicio propio y el único que orquesta el escenario; A2 y A3 son los
+dos consumos ajenos. Las reglas se tomaron leyendo los documentos OpenAPI de los
+compañeros, sin clonar su código fuente ni copiar sus clases. Swagger de A1 está
+en `http://25.29.140.0:8080/swagger-ui.html`.
+
+Para arrancar A1 desde el commit entregado:
+
+```bash
+git clone https://github.com/SaDez7/sb-taller-git-2026.git
+cd sb-taller-git-2026
+./mvnw spring-boot:run
+```
+
+A2 y A3 se arrancan de la misma forma desde los commits de sus dueños; las URLs
+base y OpenAPI de cada uno están en la tabla. Los tres quedan expuestos en la IP
+Hamachi de cada máquina. Si un compañero no responde, A1 devuelve
+`502 companero_no_disponible` con el nombre de la API en el campo `api`; en la
+prueba real A3 devolvió `Conexión rehusada` una vez, se reintentó con otra TNT y
+la respuesta quedó registrada abajo.
+
+### Escenario propio: explosión cruzada
+
+El hecho del juego es una explosión que necesita las dos validaciones ajenas para
+ser legal: la TNT de A2 debe poder detonar contra una entidad y el creeper de A3
+debe poder explotar contra otro objetivo. A1 además exige que `jugadorId` sea un
+jugador vivo persistido en su H2 y que `distanciaA3` esté entre 0 y 3 bloques.
+
+A1 valida primero al jugador local, después llama a A2
+(`POST /api/explosiones`) y por último a A3
+(`POST /entidades/{id}/explotar`). A2 va primero porque su respuesta entrega
+`saludActual` y `danoAplicado`, que se guardan; A3 va después porque entrega
+`vidaFinal` y `danoRecibido`. Si A2 rechaza, A3 no se llama. Si A3 rechaza, la
+TNT de A2 ya se consumió en el servicio ajeno, pero el H2 de A1 queda igual.
+
+```mermaid
+sequenceDiagram
+    actor Cliente as Insomnia (cliente)
+    participant A1 as A1 (Santiago, escenario)
+    participant A2 as A2 (fadul, TNT)
+    participant A3 as A3 (mateo, creeper)
+
+    Cliente->>A1: POST /escenarios/explosion-cruzada
+    A1->>A1: valida jugador local y distancia
+    A1->>A2: POST /api/explosiones
+    A2-->>A1: 201 saludActual y danoAplicado
+    A1->>A3: POST /entidades/{id}/explotar
+    A3-->>A1: 200 danoRecibido y vidaFinal
+    A1->>A1: guarda escenario_cruzado en H2
+    A1-->>Cliente: 201 jugada persistida
+```
+
+Pedido feliz:
+
+```json
+{
+  "jugadorId": "steve",
+  "tntId": "t3",
+  "objetivoA2Id": "esqueleto1",
+  "creeperA3Id": 4,
+  "objetivoA3Id": 2,
+  "distanciaA3": 2
+}
+```
+
+Respuesta real (`201`):
+
+```json
+{
+  "id": 1,
+  "jugadorId": "steve",
+  "tntId": "t3",
+  "objetivoA2Id": "esqueleto1",
+  "explosionA2Id": 3,
+  "danoA2": 8,
+  "saludA2Despues": 12,
+  "creeperA3Id": 4,
+  "objetivoA3Id": 2,
+  "distanciaA3": 2,
+  "danoA3": 10,
+  "vidaA3Despues": 0
+}
+```
+
+`GET /escenarios/explosion-cruzada` y `GET /escenarios/explosion-cruzada/1`
+devuelven la misma jugada persistida. La tabla H2 `escenarios_cruzados` guarda
+`id`, `jugador_id`, `tnt_id`, `objetivo_a2_id`, `explosion_a2_id`, `dano_a2`,
+`salud_a2_despues`, `creeper_a3_id`, `objetivo_a3_id`, `distancia_a3`, `dano_a3`
+y `vida_a3_despues`. El service es `@Transactional` y guarda recién después de
+las dos respuestas aceptadas.
+
+Para repetir la prueba hay que crear otra TNT en A2 con `POST /api/tnts` y elegir
+un creeper vivo con `GET /entidades/creepers/listos` de A3: `t3` ya detonó y el
+creeper `4` ya explotó. El jugador local `steve` debe existir por
+`POST /entidades` en A1.
+
+### Errores de los compañeros
+
+A1 traduce el rechazo ajeno a su propia jerarquía y distingue al responsable en
+el campo `api`. Un rechazo de negocio responde `422` con
+`tipo: "validacion_companero"`; un problema de red responde `502` con
+`tipo: "companero_no_disponible"`.
+
+Rechazo real de A2 al repetir `t3` (`422`):
+
+```json
+{
+  "tipo": "validacion_companero",
+  "mensaje": "La API de A2 rechazó la validación con 409.",
+  "api": "A2",
+  "statusCompanero": 409,
+  "detalle": "{\"error\":\"La TNT ya fue detonada\"}"
+}
+```
+
+Rechazo real de A3 con TNT `t4` y creeper `4` ya explotado (`422`):
+
+```json
+{
+  "tipo": "validacion_companero",
+  "mensaje": "La API de A3 rechazó la validación con 409.",
+  "api": "A3",
+  "statusCompanero": 409,
+  "detalle": "{\"error\":\"El creeper ya explotó\"}"
+}
+```
+
+Después de ambos rechazos, `GET /escenarios/explosion-cruzada` sigue mostrando
+sólo la jugada `id: 1`: la base de A1 no creció. `CompaneroWebClientImpl` usa dos
+`WebClient` configurados con `api.a2.base-url` y `api.a3.base-url`, con timeout
+de 10 segundos; los DTOs de pedido y respuesta se armaron desde los OpenAPI
+ajenos.
 
 ## Las dos reglas de negocio
 
@@ -509,7 +671,9 @@ Para importarlo:
 2. Elegir `Import` y luego `From File`.
 3. Seleccionar `insomnia/sb-taller-git-2026.json`.
 4. Verificar que el entorno incluido se llame `Local` y que `base_url` sea
-   `http://localhost:8080`.
+   `http://localhost:8080` (o `http://25.29.140.0:8080` si se prueba por
+   Hamachi), `a2_base_url` `http://25.30.124.10:8080` y `a3_base_url`
+   `http://25.28.15.25:8080`.
 
 Orden recomendado:
 
@@ -522,6 +686,20 @@ Orden recomendado:
 7. `13 - Comportamiento`.
 8. `14 - Error ReglaDeJuego (422)`, `15 - Error EntidadNoEncontrada (404)` y
    `16 - Error JSON inválido (400)`.
+9. `17 - OpenAPI propia`, `18 - OpenAPI A2` y `19 - OpenAPI A3` para confirmar
+   que los tres documentos están vivos.
+10. `20 - Crear TNT A2 (feliz)` y `21 - Escenario feliz`.
+11. `22 - Ver escenarios guardados`: debe aparecer la jugada recién persistida.
+12. `23 - Rechazo A2`, creado con la misma TNT ya detonada.
+13. `24 - Crear TNT A2 (rechazo A3)` y `25 - Rechazo A3`, con el creeper ya
+    explotado.
+14. `26 - Ver escenarios tras rechazos`: la lista queda igual que en el paso 11.
+
+Antes de repetir, cambiar `tnt_feliz_id` y `tnt_rechazo_a3_id` por ids nuevos de
+A2; los valores iniciales son `t5` y `t6`. Elegir `objetivo_a2_id`,
+`creeper_a3_id`, `objetivo_a3_id` y `distancia_a3` con `GET /api/entidades` de A2
+y `GET /entidades/creepers/listos` / `GET /entidades` de A3; los valores
+sugeridos son `jugador1`, `5`, `3` y `2`.
 
 Si se vuelve a ejecutar la colección sobre la misma base, el `POST` de `steve`
 puede fallar por id duplicado. Para reiniciar: detener la aplicación, borrar

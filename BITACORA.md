@@ -1,6 +1,6 @@
 # Bitácora de asistencia de inteligencia artificial
 
-**Ejercicios:** POO-06 — Revisión, paquetes, constructores y sobrecarga; POO-08 — CRUD REST, H2, reglas de juego y excepciones
+**Ejercicios:** POO-06 — Revisión, paquetes, constructores y sobrecarga; POO-08 — CRUD REST, H2, reglas de juego y excepciones; POO-09 — APIs cruzadas con A2 y A3
 **Asignatura:** Lenguaje de Programación 3 (CYT646)
 **Alumno:** Santiago Baez (GitHub: `SaDez7`)
 **Repositorio:** `sb-taller-git-2026`
@@ -13,7 +13,7 @@
 | Herramienta | Modelo exacto | Para qué la usé |
 |---|---|---|
 | Claude (Anthropic), en Claude Code | `claude-sonnet-5` y `claude-sonnet-5-5` (cambié de modelo a mitad de la sesión) | Guía paso a paso del taller de Git, lectura de los enunciados y la rúbrica, revisión de lo que hizo el agente, redacción de este documento y de las especificaciones |
-| OpenCode (agente en la terminal de la VM) | `opencode/big-pickle` | Ejecutar los cambios sobre el código del repositorio en POO-06 y POO-08 |
+| OpenCode (agente en la terminal de la VM) | `opencode/big-pickle` | Ejecutar los cambios sobre el código del repositorio en POO-06, POO-08 y POO-09 |
 
 ---
 
@@ -139,3 +139,48 @@ y la decisión de qué aceptar quedaron de mi lado.
   `tipo: "json_invalido"`.
 - La colección quedó en `insomnia/sb-taller-git-2026.json`; el entorno `Local`
   apunta a `http://localhost:8080`.
+
+---
+
+## POO-09 — APIs cruzadas
+
+**Alcance:** publicar el OpenAPI de A1, consumir las APIs reales de A2 (fadul) y
+A3 (mateo) usando sólo sus documentos, exponer un escenario propio que combine
+las dos validaciones, persistir la jugada aceptada en H2, atribuir los rechazos y
+dejar la colección Insomnia con el feliz y un rechazo por compañero. Las
+correcciones de POO-08 ya estaban cerradas en los commits `e233fe0`, `35374b3`,
+`bde0b74` y `1853e52`; el README las lista una por una.
+
+**Asistentes y modelos:** usé OpenCode en la terminal con el modelo
+`opencode/big-pickle`. Yo elegí el grupo, leí los enunciados y los OpenAPI de los
+compañeros, y revisé las respuestas antes de aceptar los cambios.
+
+**Resumen de prompts:**
+- Pedí leer los tres documentos de POO-09 y revisar qué faltaba en el repo.
+- Entregué las URLs base y OpenAPI de A2 y A3 para que las consultara con
+  `curl` y armara los DTOs desde esos documentos, sin copiar código ajeno.
+- Pedí continuar con los siguientes pasos: tests, arranque del servicio,
+  escenario feliz, rechazos, README, Insomnia y bitácora.
+
+**Qué verifiqué en esta etapa:**
+- `./mvnw -q compile` pasó. `./mvnw test` pasó con 7 tests después de agregar
+  `src/test/resources/application.properties` con H2 en memoria; antes el test
+  de contexto fallaba porque el servicio en marcha tenía abierto
+  `data/entidades.mv.db`.
+- `http://25.29.140.0:8080/v3/api-docs` responde `200` y ahora incluye
+  `/escenarios/explosion-cruzada` y `/escenarios/explosion-cruzada/{id}`.
+- Escenario feliz: `POST /escenarios/explosion-cruzada` con `steve`, TNT `t3`,
+  objetivo A2 `esqueleto1`, creeper A3 `4`, objetivo `2` y distancia `2` devolvió
+  `201`: daño A2 `8`, salud A2 `12`, daño A3 `10`, vida A3 `0`. Un `GET` posterior
+  listó y leyó la jugada `id: 1`.
+- Rechazo de A2: repetir la TNT `t3` devolvió `422` con
+  `tipo: "validacion_companero"`, `api: "A2"`, `statusCompanero: 409` y detalle
+  `La TNT ya fue detonada`.
+- Rechazo de A3: crear `t4` y usar el creeper `4` ya explotado devolvió `422` con
+  `api: "A3"`, `statusCompanero: 409` y detalle `El creeper ya explotó`.
+- Después de ambos rechazos, `GET /escenarios/explosion-cruzada` sigue mostrando
+  sólo la jugada `id: 1`: la base de A1 quedó igual.
+- En el primer intento A3 devolvió `502 companero_no_disponible` por
+  `Conexión rehusada`; `curl` al mismo OpenAPI funcionaba. Reintenté con otra
+  TNT y el escenario pasó, dejando documentado el comportamiento ante un
+  compañero caído.
