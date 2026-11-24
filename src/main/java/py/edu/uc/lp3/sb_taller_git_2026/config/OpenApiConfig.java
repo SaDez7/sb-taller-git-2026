@@ -15,6 +15,6 @@ public class OpenApiConfig {
 				.info(new Info()
 						.title("sb-taller-git-2026 API")
 						.version("v1")
-						.description("API REST del taller de Git: dominio Minecraft, persistencia H2, simulación y consulta externa con WebClient."));
+						.description("API REST del taller de Git: dominio Minecraft, persistencia H2, simulación, consulta externa con WebClient y escenario cruzado POO-09 con las APIs de A2 y A3."));
 	}
 }
