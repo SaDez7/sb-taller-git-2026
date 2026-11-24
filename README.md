@@ -128,7 +128,7 @@ argumentos de la llamada.
 - `Vector()` y `Vector(double, double, double)` son dos constructores con
   distinta lista de parámetros.
 
-### Sobreescritura
+### Sobrescritura
 
 La sobrescritura aparece cuando una clase redefine un método con la misma
 firma que el padre. Después de esta corrección el dominio no tiene métodos de
